@@ -1,0 +1,45 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #0d0b1a;
+    color: white;
+}
+
+.sidebar {
+    width: 220px;
+    background: #1a1535;
+    padding: 20px;
+    position: fixed;
+    height: 100%;
+}
+
+.sidebar h2 {
+    color: #c3a6ff;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin: 15px 0;
+}
+
+.sidebar ul li a {
+    color: #e6d6ff;
+    text-decoration: none;
+}
+
+.main-content {
+    margin-left: 240px;
+    padding: 20px;
+}
+
+.time-card {
+    background: #2a235a;
+    padding: 15px;
+    border-radius: 10px;
+    margin: 10px;
+    display: inline-block;
+}

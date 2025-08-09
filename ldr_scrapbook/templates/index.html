@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>From Me to You 💜</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/stars.js') }}" defer></script>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>From Me<br>to You</h2>
+        <p>Hey beautiful 💌</p>
+        <ul>
+            <li><a href="{{ url_for('home') }}">🏠 Home</a></li>
+            <li><a href="#">💖 Love Notes</a></li>
+            <li><a href="#">📷 Memories</a></li>
+            <li><a href="#">💝 Care</a></li>
+            <li><a href="#">📅 Special Days</a></li>
+            <li><a href="#">⚙️ Settings</a></li>
+            <li><a href="{{ url_for('logout') }}">🚪 Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1>Good morning, beautiful</h1>
+        <p>Here's your daily dose of love 💌</p>
+
+        <div class="timezones">
+            <div class="time-card">
+                <h3>Your Time</h3>
+                <p>{{ monrovia_time }}</p>
+            </div>
+            <div class="time-card">
+                <h3>My Time</h3>
+                <p>{{ manila_time }}</p>
+            </div>
+        </div>
+
+        <div class="love-note">
+            <h4>Today's Love Note 💜</h4>
+            <p>Distance means nothing when someone means everything 🌟</p>
+        </div>
+    </div>
+</body>
+</html>
