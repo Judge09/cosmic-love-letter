@@ -1,46 +1,87 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>From Me to You 💜</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script src="{{ url_for('static', filename='js/stars.js') }}" defer></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Home — Cosmic Love</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="sidebar">
-        <h2>From Me<br>to You</h2>
-        <p>Hey beautiful 💌</p>
-        <ul>
-            <li><a href="{{ url_for('home') }}">🏠 Home</a></li>
-            <li><a href="#">💖 Love Notes</a></li>
-            <li><a href="#">📷 Memories</a></li>
-            <li><a href="#">💝 Care</a></li>
-            <li><a href="#">📅 Special Days</a></li>
-            <li><a href="#">⚙️ Settings</a></li>
-            <li><a href="{{ url_for('logout') }}">🚪 Logout</a></li>
-        </ul>
-    </div>
+  <div class="stars-bg"></div>
 
-    <div class="main-content">
+  <div class="container">
+    <aside class="sidebar">
+      <div class="brand">
+        <h2>From Me to You</h2>
+        <div class="greeting">Hey beautiful 💌</div>
+      </div>
+
+      <nav class="nav">
+        <a href="{{ url_for('index') }}" class="active">Home</a>
+        <a href="{{ url_for('love_notes') }}">Love Notes</a>
+        <a href="{{ url_for('memories') }}">Memories</a>
+        <a href="{{ url_for('special_days') }}">Special Days</a>
+        <a href="{{ url_for('settings') }}">Settings</a>
+      </nav>
+
+      <div class="foot">
+        <a href="{{ url_for('logout') }}" style="color:#ffd8a6; text-decoration:none;">🚪 Logout</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="header">
         <h1>Good morning, beautiful</h1>
-        <p>Here's your daily dose of love 💌</p>
+        <p class="sub">Here's your daily dose of love 💌</p>
+      </header>
 
-        <div class="timezones">
-            <div class="time-card">
-                <h3>Your Time</h3>
-                <p>{{ monrovia_time }}</p>
-            </div>
-            <div class="time-card">
-                <h3>My Time</h3>
-                <p>{{ manila_time }}</p>
-            </div>
+      <section class="grid">
+        <div class="card">
+          <h3>🕒 Your Time</h3>
+          <div class="time">{{ monrovia_time }}</div>
+          <div class="tiny">Monrovia (America/Los_Angeles)</div>
         </div>
 
-        <div class="love-note">
-            <h4>Today's Love Note 💜</h4>
-            <p>Distance means nothing when someone means everything 🌟</p>
+        <div class="card">
+          <h3>🕒 My Time</h3>
+          <div class="time">{{ manila_time }}</div>
+          <div class="tiny">Manila (Asia/Manila)</div>
         </div>
-    </div>
+
+        <div class="card love-note">
+          <h3>💜 Today's Love Note</h3>
+          <div class="note">Distance means nothing when someone means everything 🌞</div>
+          <div style="text-align:right; margin-top:8px; color:#d9b8ff;">— Your loving boyfriend ✨</div>
+        </div>
+
+        <div class="card countdown">
+          <h3>⏳ Anniversary & Monthsary</h3>
+          <div class="big">Months together: <strong>{{ months }}</strong></div>
+          <div class="tiny">Days until next anniversary: <strong>{{ days_until }}</strong></div>
+        </div>
+
+        <div class="card playlist" style="grid-column: 1 / -1;">
+          <h3>🎵 Shared Playlist</h3>
+          <iframe src="https://open.spotify.com/embed/playlist/YOUR_PLAYLIST_ID" width="100%" height="80" frameborder="0" allow="encrypted-media"></iframe>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="welcome-toast">Welcome back, my love! 💕<div style="font-size:12px; color:#333;">I've missed you so much</div></div>
+
+  <script src="{{ url_for('static', filename='js/stars.js') }}"></script>
+  <script>
+    // show toast
+    window.addEventListener('load', () => {
+      const t = document.getElementById('welcome-toast');
+      t.style.display = 'block';
+      t.style.opacity = '0';
+      setTimeout(()=> t.style.opacity='1',50);
+      setTimeout(()=> { t.style.opacity='0'; setTimeout(()=> t.style.display='none',400); }, 6000);
+    });
+
+    // small live-time fallback if desired (keeps server times until page reload)
+  </script>
 </body>
 </html>

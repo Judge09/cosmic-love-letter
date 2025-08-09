@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Settings — Cosmic Love</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="stars-bg"></div>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="brand"><h2>From Me to You</h2><div class="greeting">Hey beautiful 💌</div></div>
+      <nav class="nav">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('love_notes') }}">Love Notes</a>
+        <a href="{{ url_for('memories') }}">Memories</a>
+        <a href="{{ url_for('special_days') }}">Special Days</a>
+        <a href="{{ url_for('settings') }}" class="active">Settings</a>
+      </nav>
+      <div class="foot"><a href="{{ url_for('logout') }}" style="color:#ffd8a6;">Logout</a></div>
+    </aside>
+
+    <main class="main">
+      <header class="header"><h1>Settings ⚙️</h1><p class="sub">Change small things locally</p></header>
+
+      <section class="grid" style="max-width:900px; margin:0 auto;">
+        <div class="card" style="grid-column:1/-1;">
+          <h3>Local settings</h3>
+          <form method="POST">
+            <label style="display:block; margin-bottom:8px; color:#d6bfff;">Update anniversary (change `.env` later)</label>
+            <input type="text" placeholder="(To be hooked to backend later)" disabled style="width:100%; padding:10px; border-radius:8px; background:rgba(255,255,255,0.03); color:#fff;">
+            <p style="font-size:13px; color:#bdaeff; margin-top:8px;">To change anniversary edit the ANNIV_YEAR, ANNIV_MONTH, ANNIV_DAY in the server env or .env for now.</p>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Privacy</h3>
+          <p style="color:#d6bfff;">Media & notes are local placeholders — when we connect Supabase they can be stored privately.</p>
+        </div>
+
+        <div class="card">
+          <h3>Appearance</h3>
+          <p style="color:#d6bfff;">Dark mode only. Theme: purple cosmic.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

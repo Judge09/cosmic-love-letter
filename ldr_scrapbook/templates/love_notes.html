@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Love Notes — Cosmic Love</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="stars-bg"></div>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="brand"><h2>From Me to You</h2><div class="greeting">Hey beautiful 💌</div></div>
+      <nav class="nav">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('love_notes') }}" class="active">Love Notes</a>
+        <a href="{{ url_for('memories') }}">Memories</a>
+        <a href="{{ url_for('special_days') }}">Special Days</a>
+        <a href="{{ url_for('settings') }}">Settings</a>
+      </nav>
+      <div class="foot"><a href="{{ url_for('logout') }}" style="color:#ffd8a6;">Logout</a></div>
+    </aside>
+
+    <main class="main">
+      <header class="header"><h1>Love Notes 💌</h1><p class="sub">Sweet messages you both add — placeholder UI</p></header>
+
+      <section class="grid" style="max-width:900px; margin:0 auto;">
+        <div class="card" style="grid-column:1/-1;">
+          <h3>Write a love note</h3>
+          <form id="note-form">
+            <textarea id="note-content" rows="4" style="width:100%; border-radius:8px; padding:10px; background:rgba(255,255,255,0.03); color:#fff;"></textarea>
+            <button type="button" onclick="saveNote()" style="margin-top:8px; padding:8px 12px; border-radius:8px; border:none; background:#c084fc;">Save note</button>
+          </form>
+        </div>
+
+        <div class="card" id="notes-list" style="grid-column:1/-1;">
+          <h3>Recent notes</h3>
+          <p style="color:#d6bfff;">No notes yet. When you add notes they'll appear here.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function saveNote(){
+      const content = document.getElementById('note-content').value.trim();
+      if(!content) return alert('Type a note first.');
+      // placeholder: show locally — later connect to Supabase
+      const node = document.createElement('div');
+      node.style.padding='10px'; node.style.marginTop='8px'; node.style.background='rgba(255,255,255,0.02)';
+      node.innerText = content;
+      document.getElementById('notes-list').appendChild(node);
+      document.getElementById('note-content').value='';
+      alert('Saved locally (placeholder). I can connect Supabase next.');
+    }
+  </script>
+</body>
+</html>

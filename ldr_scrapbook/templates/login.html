@@ -1,22 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - LDR Scrapbook</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login — Cosmic Love</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="login-page">
-    <div class="login-container">
-        <h1>Welcome 💜</h1>
-        <form method="POST">
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
-            {% if error %}
-            <p class="error">{{ error }}</p>
-            {% endif %}
-            <button type="submit">Login</button>
-        </form>
-    </div>
+  <div class="stars-bg"></div>
+
+  <div class="login-card">
+    <h1>From Me to You</h1>
+    <p class="sub">Hey beautiful 💌 — enter our secret</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat,msg in messages %}
+          <div class="flash {{ cat }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% if error %}
+      <p style="color:#ffb4b4;">{{ error }}</p>
+    {% endif %}
+
+    <form method="POST" autocomplete="off">
+      <input type="password" name="password" placeholder="Password" required>
+      <button type="submit">Enter</button>
+    </form>
+    <p style="color:#d6bfff; font-size:13px; margin-top:10px;">Tip: set a private password in `.env` (SCRAPBOOK_PASSWORD)</p>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/stars.js') }}"></script>
 </body>
 </html>

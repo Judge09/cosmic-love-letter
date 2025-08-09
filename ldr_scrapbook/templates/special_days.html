@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Special Days — Cosmic Love</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="stars-bg"></div>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="brand"><h2>From Me to You</h2><div class="greeting">Hey beautiful 💌</div></div>
+      <nav class="nav">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('love_notes') }}">Love Notes</a>
+        <a href="{{ url_for('memories') }}">Memories</a>
+        <a href="{{ url_for('special_days') }}" class="active">Special Days</a>
+        <a href="{{ url_for('settings') }}">Settings</a>
+      </nav>
+      <div class="foot"><a href="{{ url_for('logout') }}" style="color:#ffd8a6;">Logout</a></div>
+    </aside>
+
+    <main class="main">
+      <header class="header"><h1>Special Days 📅</h1><p class="sub">Countdowns for meetups, anniversaries, monthsaries</p></header>
+
+      <section class="grid" style="max-width:900px; margin:0 auto;">
+        <div class="card">
+          <h3>Next meetup</h3>
+          <p style="color:#d6bfff;">No upcoming meetup set. Add one in Settings.</p>
+        </div>
+
+        <div class="card">
+          <h3>Anniversary</h3>
+          <p style="color:#d6bfff;">Default anniversary is set in the backend. Change in Settings.</p>
+        </div>
+
+        <div class="card" style="grid-column:1/-1;">
+          <h3>All special days</h3>
+          <p style="color:#d6bfff;">(Placeholder) I'll store these in Supabase when you want persistence.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

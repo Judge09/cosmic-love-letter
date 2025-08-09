@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Memories — Cosmic Love</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="stars-bg"></div>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="brand"><h2>From Me to You</h2><div class="greeting">Hey beautiful 💌</div></div>
+      <nav class="nav">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('love_notes') }}">Love Notes</a>
+        <a href="{{ url_for('memories') }}" class="active">Memories</a>
+        <a href="{{ url_for('special_days') }}">Special Days</a>
+        <a href="{{ url_for('settings') }}">Settings</a>
+      </nav>
+      <div class="foot"><a href="{{ url_for('logout') }}" style="color:#ffd8a6;">Logout</a></div>
+    </aside>
+
+    <main class="main">
+      <header class="header"><h1>Memories 📷</h1><p class="sub">Upload and view photos & videos — placeholder gallery</p></header>
+
+      <section class="grid" style="max-width:1100px; margin:0 auto;">
+        <div class="card" style="grid-column:1/-1;">
+          <h3>Upload media</h3>
+          <p style="color:#d6bfff;">(Supabase storage not yet connected.)</p>
+          <input type="file" accept="image/*,video/*" disabled style="opacity:0.6;">
+          <p style="font-size:13px; color:#bdaeff;">I can wire uploads to Supabase Storage next — want that now?</p>
+        </div>
+
+        <div class="card" style="grid-column:1/-1;">
+          <h3>Gallery</h3>
+          <p style="color:#d6bfff;">No images yet. After you upload, thumbnails will show here.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

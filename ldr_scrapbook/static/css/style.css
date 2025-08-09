@@ -1,45 +1,131 @@
+/* ---------- Reset & base ---------- */
+* { box-sizing: border-box; }
+html,body { height:100%; margin:0; font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+
+/* ---------- Background / stars container ---------- */
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #0d0b1a;
-    color: white;
+  background: radial-gradient(ellipse at top left, rgba(110,45,200,0.10), transparent 20%),
+              linear-gradient(180deg,#0b0620 0%, #0a0014 100%);
+  color: #efe6ff;
+  -webkit-font-smoothing:antialiased;
+  overflow-y: auto;
+}
+.stars-bg { position: fixed; inset: 0; pointer-events:none; z-index:0; }
+
+/* ---------- Navbar / sidebar responsive ---------- */
+.container {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+  min-height: 100vh;
 }
 
+/* sidebar */
 .sidebar {
-    width: 220px;
-    background: #1a1535;
-    padding: 20px;
-    position: fixed;
-    height: 100%;
+  padding: 28px 18px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-right: 1px solid rgba(255,255,255,0.03);
+  backdrop-filter: blur(6px);
+}
+.brand h2 {
+  margin: 0;
+  font-family: 'Pacifico', cursive;
+  color: #ffd8ff;
+  font-size: 22px;
+}
+.greeting { color: #d8b8ff; margin-top:8px; }
+.nav {
+  margin-top: 20px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.nav a {
+  display:flex; align-items:center; gap:10px;
+  padding: 12px 14px; border-radius: 12px;
+  color: #b89aff; text-decoration:none; font-weight:700;
+}
+.nav a.active, .nav a:hover {
+  background: rgba(200,140,255,0.12);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(192,132,252,0.06);
 }
 
-.sidebar h2 {
-    color: #c3a6ff;
+/* bottom logout */
+.sidebar .foot { margin-top: auto; padding-top:18px; color:#ffd; }
+
+/* main content */
+.main {
+  padding: 28px;
+}
+.header {
+  text-align: center;
+  margin-bottom: 18px;
+}
+.header h1 {
+  font-family: 'Great Vibes', cursive;
+  font-size: 44px; margin:0; color:#e6d5ff;
+}
+.header p.sub { color:#c9aef7; margin-top:6px; }
+
+/* grid layout */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.card {
+  background: rgba(255,255,255,0.03);
+  border-radius: 14px; padding: 16px;
+  box-shadow: 0 8px 30px rgba(120,70,200,0.06);
 }
 
-.sidebar ul {
-    list-style: none;
-    padding: 0;
+/* time cards */
+.time {
+  font-size: 28px; font-weight:800; color:#d7b3ff;
+  margin-top:8px;
+}
+.tiny { color:#d3b9ff; font-size:13px; }
+
+/* love note */
+.love-note .note { font-family:'Pacifico', cursive; font-size:18px; color:#fffbe8; margin:10px 0 6px; }
+
+/* countdown */
+.countdown .big { font-size:20px; color:#ffd6f7; }
+
+/* playlist iframe */
+.playlist iframe { border-radius:8px; }
+
+/* toast (welcome) */
+.toast {
+  position: fixed; right:18px; bottom:18px; z-index:99;
+  background: #fff200; color:#222; padding:14px 18px; border-radius:12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25); display:none;
 }
 
-.sidebar ul li {
-    margin: 15px 0;
+/* login page */
+.login-page {
+  min-height:100vh; display:flex; align-items:center; justify-content:center; position:relative;
 }
-
-.sidebar ul li a {
-    color: #e6d6ff;
-    text-decoration: none;
+.login-card {
+  width: 340px; background: rgba(255,255,255,0.03);
+  border-radius: 14px; padding: 20px; text-align:center; box-shadow: 0 16px 50px rgba(80,40,120,0.08);
 }
+.login-card h1 { font-family:'Pacifico', cursive; margin:0 0 10px; color:#ffd8ff; }
+.login-card input { width:100%; padding:10px; margin:8px 0; border-radius:8px; border:none; background: rgba(255,255,255,0.04); color:#fff; }
+.login-card button { width:100%; padding:10px; border:none; border-radius:8px; background:#c084fc; color:white; font-weight:700; margin-top:8px; }
 
-.main-content {
-    margin-left: 240px;
-    padding: 20px;
-}
-
-.time-card {
-    background: #2a235a;
-    padding: 15px;
-    border-radius: 10px;
-    margin: 10px;
-    display: inline-block;
+/* small screens: make sidebar top nav */
+@media (max-width: 880px) {
+  .container { grid-template-columns: 1fr; }
+  .sidebar { display:flex; flex-direction:row; gap:12px; padding:14px; overflow:auto; }
+  .sidebar .brand { display:none; }
+  .nav { flex-direction:row; gap:8px; }
+  .grid { grid-template-columns: 1fr; padding: 0 14px; }
+  .header h1 { font-size: 34px; }
+  .main { padding:18px; }
 }
