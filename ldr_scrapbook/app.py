@@ -28,7 +28,7 @@ def inject_supabase():
 # Timezones
 # ------------------------
 TZ_MANILA = pytz.timezone("Asia/Manila")
-TZ_MONROVIA = pytz.timezone("America/Los_Angeles")  # Monrovia CA (PST/PDT)
+TZ_MONROVIA = pytz.timezone("America/Los_Angeles")  # PST/PDT
 
 # ------------------------
 # Anniversary date
@@ -69,6 +69,7 @@ def login():
             flash("Invalid username or password.", "error")
             return render_template("login.html")
     return render_template("login.html")
+
 
 @app.route("/home")
 def index():
@@ -117,6 +118,33 @@ def love_notes():
 
     notes = supabase.table("love_notes").select("*").order("created_at", desc=True).execute()
     return render_template("love_notes.html", notes=notes.data)
+
+# ------------------------
+# Mood board route
+# ------------------------
+@app.route("/mood", methods=["GET", "POST"])
+def mood():
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+
+    user_id = session["user_id"]
+    partner_id = session.get("partner_id")  # make sure this is set in session
+
+    if request.method == "POST":
+        mood_val = request.form.get("mood")
+        if mood_val:
+            # Use upsert to replace existing mood
+            supabase.table("moods").upsert(
+                {"user_id": user_id, "mood": mood_val},
+                on_conflict=["user_id"]
+            ).execute()
+        return {"status": "ok"}
+
+    # GET: return latest moods for both user & partner
+    moods = supabase.table("moods").select("user_id, mood")\
+        .in_("user_id", [user_id, partner_id])\
+        .execute()
+    return {"moods": moods.data}
 
 @app.route("/memories", methods=["GET", "POST"])
 def memories():
