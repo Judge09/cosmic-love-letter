@@ -10,18 +10,19 @@
   <div class="stars-bg"></div>
 
   <div class="container">
+    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="brand">
         <h2>From Me to You</h2>
-        <div class="greeting">Hey beautiful 💌</div>
+        <div class="greeting">Hey {{ username or 'beautiful' }} 💌</div>
       </div>
 
       <nav class="nav">
-        <a href="{{ url_for('index') }}" class="active">Home</a>
-        <a href="{{ url_for('love_notes') }}">Love Notes</a>
-        <a href="{{ url_for('memories') }}">Memories</a>
-        <a href="{{ url_for('special_days') }}">Special Days</a>
-        <a href="{{ url_for('settings') }}">Settings</a>
+        <a href="{{ url_for('index') }}" class="active">🏠 Home</a>
+        <a href="{{ url_for('love_notes') }}">💌 Love Notes</a>
+        <a href="{{ url_for('memories') }}">📸 Memories</a>
+        <a href="{{ url_for('special_days') }}">🎉 Special Days</a>
+        <a href="{{ url_for('settings') }}">⚙️ Settings</a>
       </nav>
 
       <div class="foot">
@@ -29,59 +30,195 @@
       </div>
     </aside>
 
+    <!-- Main -->
     <main class="main">
       <header class="header">
-        <h1>Good morning, beautiful</h1>
-        <p class="sub">Here's your daily dose of love 💌</p>
+        <h1>Good day, {{ username or 'love' }} ✨</h1>
+        <p class="sub">Your shared space of love & little rituals 💖</p>
       </header>
 
       <section class="grid">
+        <!-- Timezone widget -->
         <div class="card">
-          <h3>🕒 Your Time</h3>
-          <div class="time">{{ monrovia_time }}</div>
-          <div class="tiny">Monrovia (America/Los_Angeles)</div>
+          <h3>🕒 Your Time — Los Angeles</h3>
+          <div class="time" id="time-la">{{ monrovia_time }}</div>
+          <div class="tiny" id="date-la">Loading date…</div>
+          <div class="tiny">America/Los_Angeles</div>
         </div>
 
         <div class="card">
-          <h3>🕒 My Time</h3>
-          <div class="time">{{ manila_time }}</div>
-          <div class="tiny">Manila (Asia/Manila)</div>
+          <h3>🕒 My Time — Manila</h3>
+          <div class="time" id="time-manila">{{ manila_time }}</div>
+          <div class="tiny" id="date-manila">Loading date…</div>
+          <div class="tiny">Asia/Manila</div>
         </div>
 
-        <div class="card love-note">
-          <h3>💜 Today's Love Note</h3>
-          <div class="note">Distance means nothing when someone means everything 🌞</div>
-          <div style="text-align:right; margin-top:8px; color:#d9b8ff;">— Your loving boyfriend ✨</div>
+        <!-- Daily Love Note -->
+        <div class="card love-note" style="grid-column: 1 / -1;">
+          <h3>💜 Today’s Love Note</h3>
+          <div class="note" id="love-note">
+            {{ love_quote or "Distance means nothing when someone means everything 🌞" }}
+          </div>
+          <div style="text-align:right; margin-top:8px; color:#d9b8ff;">— your favorite person ✨</div>
         </div>
 
+        <!-- Anniversary & Monthsary -->
         <div class="card countdown">
           <h3>⏳ Anniversary & Monthsary</h3>
-          <div class="big">Months together: <strong>{{ months }}</strong></div>
-          <div class="tiny">Days until next anniversary: <strong>{{ days_until }}</strong></div>
+          <div class="big">
+            Months together (est.): <strong>{{ months }}</strong>
+            <span class="tiny" style="display:block;margin-top:6px;">(+ {{ days }} days)</span>
+          </div>
+          <div class="tiny" style="margin-top:10px;">
+            Days until next anniversary:
+            <strong id="days-until">{{ days_until }}</strong>
+          </div>
+          <div class="tiny" style="margin-top:6px;">
+            Live countdown (PH time): <span id="live-countdown">—</span>
+          </div>
         </div>
 
+        <!-- Reminders / Sweet rituals -->
+        <div class="card">
+          <h3>🔔 Reminders</h3>
+          <ul class="tiny" style="margin:8px 0 0 16px; line-height:1.6;">
+            <li>Anniversary on <strong>Nov 18</strong> — don’t forget a cute note 💐</li>
+            <li>Plan a video call that fits both timezones</li>
+            <li>Drop a daily check-in in <em>Love Notes</em> 💌</li>
+          </ul>
+          <a href="{{ url_for('special_days') }}" style="display:inline-block;margin-top:10px;">Manage special days →</a>
+        </div>
+
+        <!-- Mood board (local only) -->
+        <div class="card">
+          <h3>💭 Mood Board</h3>
+          <div class="tiny">How are you two feeling today?</div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+            <button class="mood-btn" data-mood="😊" title="Happy">😊</button>
+            <button class="mood-btn" data-mood="🥺" title="Needs a hug">🥺</button>
+            <button class="mood-btn" data-mood="🧠" title="Busy">🧠</button>
+            <button class="mood-btn" data-mood="💤" title="Sleepy">💤</button>
+            <button class="mood-btn" data-mood="💪" title="Motivated">💪</button>
+            <button class="mood-btn" data-mood="💖" title="In love">💖</button>
+          </div>
+          <div class="tiny" id="mood-status" style="margin-top:10px;opacity:.9;">Current mood: —</div>
+        </div>
+
+        <!-- Quick access -->
+        <div class="card">
+          <h3>💌 Daily Messages</h3>
+          <p class="tiny">Leave sweet notes or little updates for each other.</p>
+          <a href="{{ url_for('love_notes') }}">Open Love Notes →</a>
+        </div>
+
+        <div class="card">
+          <h3>📸 Digital Scrapbook</h3>
+          <p class="tiny">Upload and pin moments that matter.</p>
+          <a href="{{ url_for('memories') }}">Open Memories →</a>
+        </div>
+
+        <!-- Playlist -->
         <div class="card playlist" style="grid-column: 1 / -1;">
           <h3>🎵 Shared Playlist</h3>
-          <iframe src="https://open.spotify.com/embed/playlist/YOUR_PLAYLIST_ID" width="100%" height="80" frameborder="0" allow="encrypted-media"></iframe>
+          <iframe src="https://open.spotify.com/embed/playlist/YOUR_PLAYLIST_ID"
+                  width="100%" height="80" frameborder="0" allow="encrypted-media"></iframe>
         </div>
       </section>
     </main>
   </div>
 
-  <div class="toast" id="welcome-toast">Welcome back, my love! 💕<div style="font-size:12px; color:#333;">I've missed you so much</div></div>
+  <!-- Welcome toast -->
+  <div class="toast" id="welcome-toast">
+    Welcome back, my love! 💕
+    <div style="font-size:12px; color:#333;">I missed you.</div>
+  </div>
 
+  <!-- Scripts -->
   <script src="{{ url_for('static', filename='js/stars.js') }}"></script>
   <script>
-    // show toast
+    // ----- Toast -----
     window.addEventListener('load', () => {
       const t = document.getElementById('welcome-toast');
-      t.style.display = 'block';
-      t.style.opacity = '0';
-      setTimeout(()=> t.style.opacity='1',50);
-      setTimeout(()=> { t.style.opacity='0'; setTimeout(()=> t.style.display='none',400); }, 6000);
+      t.style.display = 'block'; t.style.opacity = '0';
+      requestAnimationFrame(() => t.style.opacity = '1');
+      setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.style.display='none', 400); }, 5000);
     });
 
-    // small live-time fallback if desired (keeps server times until page reload)
+    // ----- Timezone: show date + keep time fresh (client authoritative) -----
+    const fmtTime = (tz) => new Intl.DateTimeFormat([], {
+      hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true, timeZone: tz
+    }).format(new Date());
+    const fmtDate = (tz) => new Intl.DateTimeFormat([], {
+      weekday:'long', year:'numeric', month:'long', day:'numeric', timeZone: tz
+    }).format(new Date());
+
+    function updateTimes() {
+      const la = 'America/Los_Angeles';
+      const ph = 'Asia/Manila';
+      const elTimeLA = document.getElementById('time-la');
+      const elDateLA = document.getElementById('date-la');
+      const elTimePH = document.getElementById('time-manila');
+      const elDatePH = document.getElementById('date-manila');
+      if (elTimeLA) elTimeLA.textContent = fmtTime(la);
+      if (elDateLA) elDateLA.textContent = fmtDate(la);
+      if (elTimePH) elTimePH.textContent = fmtTime(ph);
+      if (elDatePH) elDatePH.textContent = fmtDate(ph);
+    }
+    updateTimes();
+    setInterval(updateTimes, 1000);
+
+    // ----- Anniversary live countdown (PH time reference) -----
+    function nextAnniversaryDatePH() {
+      const now = new Date();
+      const year = now.getFullYear();
+      // Nov 18 in Asia/Manila at 00:00
+      const base = new Date(Date.UTC(year, 10, 17, 16, 0, 0)); // 00:00 PH ~ 16:00 UTC previous day (ignores DST shifts)
+      const nowPHstr = new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Manila',year:'numeric'}).format(now);
+      let target = new Date(base);
+      // If today past Nov 18 PH, push to next year
+      const monthPH = new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Manila',month:'numeric'}).format(now);
+      const dayPH = new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Manila',day:'numeric'}).format(now);
+      if (parseInt(monthPH,10) > 11 || (parseInt(monthPH,10) === 11 && parseInt(dayPH,10) > 18)) {
+        target = new Date(Date.UTC(year+1, 10, 17, 16, 0, 0));
+      }
+      return target;
+    }
+
+    function tickCountdown() {
+      const target = nextAnniversaryDatePH().getTime();
+      const now = Date.now();
+      const diff = Math.max(0, target - now);
+
+      const d = Math.floor(diff / (1000*60*60*24));
+      const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+      const m = Math.floor((diff % (1000*60*60)) / (1000*60));
+      const s = Math.floor((diff % (1000*60)) / 1000);
+      const el = document.getElementById('live-countdown');
+      if (el) el.textContent = `${d}d ${h}h ${m}m ${s}s`;
+    }
+    tickCountdown();
+    setInterval(tickCountdown, 1000);
+
+    // ----- Mood board (localStorage) -----
+    (function(){
+      const KEY = 'cosmic_mood';
+      const status = document.getElementById('mood-status');
+      const btns = document.querySelectorAll('.mood-btn');
+      function render() {
+        const v = localStorage.getItem(KEY);
+        if (status) status.textContent = `Current mood: ${v ? v : '—'}`;
+      }
+      btns.forEach(b => {
+        b.classList.add('tiny');
+        b.style.padding = '8px 10px';
+        b.style.border = '1px solid rgba(255,255,255,0.08)';
+        b.style.background = 'rgba(255,255,255,0.03)';
+        b.style.borderRadius = '10px';
+        b.style.cursor = 'pointer';
+        b.onclick = () => { localStorage.setItem(KEY, b.dataset.mood); render(); };
+      });
+      render();
+    })();
   </script>
 </body>
 </html>

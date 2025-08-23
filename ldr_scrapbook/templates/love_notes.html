@@ -5,12 +5,17 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Love Notes — Cosmic Love</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <div class="stars-bg"></div>
   <div class="container">
+    <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="brand"><h2>From Me to You</h2><div class="greeting">Hey beautiful 💌</div></div>
+      <div class="brand">
+        <h2>From Me to You</h2>
+        <div class="greeting">Hey beautiful 💌</div>
+      </div>
       <nav class="nav">
         <a href="{{ url_for('index') }}">Home</a>
         <a href="{{ url_for('love_notes') }}" class="active">Love Notes</a>
@@ -18,41 +23,137 @@
         <a href="{{ url_for('special_days') }}">Special Days</a>
         <a href="{{ url_for('settings') }}">Settings</a>
       </nav>
-      <div class="foot"><a href="{{ url_for('logout') }}" style="color:#ffd8a6;">Logout</a></div>
+      <div class="foot">
+        <a href="{{ url_for('logout') }}" style="color:#ffd8a6;">Logout</a>
+      </div>
     </aside>
 
+    <!-- Main -->
     <main class="main">
-      <header class="header"><h1>Love Notes 💌</h1><p class="sub">Sweet messages you both add — placeholder UI</p></header>
+      <header class="header">
+        <h1>Love Notes 💌</h1>
+        <p class="sub">Sweet messages you both add — saved in real-time</p>
+      </header>
 
       <section class="grid" style="max-width:900px; margin:0 auto;">
+        <!-- Write Note -->
         <div class="card" style="grid-column:1/-1;">
           <h3>Write a love note</h3>
           <form id="note-form">
-            <textarea id="note-content" rows="4" style="width:100%; border-radius:8px; padding:10px; background:rgba(255,255,255,0.03); color:#fff;"></textarea>
-            <button type="button" onclick="saveNote()" style="margin-top:8px; padding:8px 12px; border-radius:8px; border:none; background:#c084fc;">Save note</button>
+            <textarea id="note-content" rows="4"
+              style="width:100%; border-radius:8px; padding:10px;
+              background:rgba(255,255,255,0.05); color:#fff;"></textarea>
+            <button type="submit"
+              style="margin-top:8px; padding:8px 12px; border-radius:8px;
+              border:none; background:#c084fc; color:#fff;">Save note</button>
           </form>
+          <p id="form-msg" style="margin-top:6px; font-size:14px;"></p>
         </div>
 
+        <!-- Notes List -->
         <div class="card" id="notes-list" style="grid-column:1/-1;">
           <h3>Recent notes</h3>
-          <p style="color:#d6bfff;">No notes yet. When you add notes they'll appear here.</p>
+          <div id="notes-container" style="margin-top:10px;">
+            <p style="color:#d6bfff;">Loading notes...</p>
+          </div>
         </div>
       </section>
     </main>
   </div>
 
   <script>
-    function saveNote(){
-      const content = document.getElementById('note-content').value.trim();
-      if(!content) return alert('Type a note first.');
-      // placeholder: show locally — later connect to Supabase
-      const node = document.createElement('div');
-      node.style.padding='10px'; node.style.marginTop='8px'; node.style.background='rgba(255,255,255,0.02)';
-      node.innerText = content;
-      document.getElementById('notes-list').appendChild(node);
-      document.getElementById('note-content').value='';
-      alert('Saved locally (placeholder). I can connect Supabase next.');
+    // --- Supabase Client Setup ---
+    const SUPABASE_URL = "{{ SUPABASE_URL }}";
+    const SUPABASE_KEY = "{{ SUPABASE_KEY }}";
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const notesContainer = document.getElementById("notes-container");
+    const noteForm = document.getElementById("note-form");
+    const noteInput = document.getElementById("note-content");
+    const formMsg = document.getElementById("form-msg");
+
+    // Render helper
+    function renderNote(note, prepend = true) {
+      const node = document.createElement("div");
+      node.style.padding = "10px";
+      node.style.marginTop = "8px";
+      node.style.background = "rgba(255,255,255,0.05)";
+      node.style.borderRadius = "6px";
+
+      node.innerHTML = `
+        <p>${note.content}</p>
+        <small style="color:#aaa; font-size:12px;">
+          ${new Date(note.created_at).toLocaleString()}
+        </small>
+      `;
+
+      if (prepend) {
+        notesContainer.prepend(node);
+      } else {
+        notesContainer.appendChild(node);
+      }
     }
+
+    // Load existing notes
+    async function loadNotes() {
+      notesContainer.innerHTML = `<p style="color:#d6bfff;">Loading notes...</p>`;
+      const { data, error } = await client
+        .from("love_notes")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        notesContainer.innerHTML = `<p style="color:#f88;">Error loading notes.</p>`;
+        console.error(error);
+        return;
+      }
+
+      notesContainer.innerHTML = "";
+      if (!data || data.length === 0) {
+        notesContainer.innerHTML = `<p style="color:#d6bfff;">No notes yet. Be the first 💜</p>`;
+        return;
+      }
+
+      data.forEach(note => renderNote(note, false));
+    }
+
+    // Submit new note
+    noteForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const content = noteInput.value.trim();
+      if (!content) {
+        formMsg.textContent = "Please write something 💌";
+        formMsg.style.color = "#f88";
+        return;
+      }
+
+      const { error } = await client
+        .from("love_notes")
+        .insert([{ content }]);
+
+      if (error) {
+        formMsg.textContent = "Error saving note 😢";
+        formMsg.style.color = "#f88";
+        console.error(error);
+      } else {
+        formMsg.textContent = "Note saved! 🎉";
+        formMsg.style.color = "#8ef08e";
+        noteInput.value = "";
+      }
+    });
+
+    // Real-time listener
+    client
+      .channel("love_notes_changes")
+      .on("postgres_changes",
+        { event: "INSERT", schema: "public", table: "love_notes" },
+        (payload) => {
+          renderNote(payload.new);
+        })
+      .subscribe();
+
+    // Initial load
+    loadNotes();
   </script>
 </body>
 </html>

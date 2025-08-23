@@ -26,10 +26,10 @@
     {% endif %}
 
     <form method="POST" autocomplete="off">
+      <input type="text" name="username" placeholder="Username" required>
       <input type="password" name="password" placeholder="Password" required>
       <button type="submit">Enter</button>
     </form>
-    <p style="color:#d6bfff; font-size:13px; margin-top:10px;">Tip: set a private password in `.env` (SCRAPBOOK_PASSWORD)</p>
   </div>
 
   <script src="{{ url_for('static', filename='js/stars.js') }}"></script>

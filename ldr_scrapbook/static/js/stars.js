@@ -20,6 +20,8 @@
     star.style.transform = `rotate(${angle}rad)`;
     star.style.opacity = '0.0';
     star.style.transition = 'transform 900ms linear, opacity 900ms linear';
+    star.style.pointerEvents = 'none'; // so stars never block clicks
+    star.style.zIndex = 0; // ensure stars are always behind content
 
     wrap.appendChild(star);
 
@@ -39,23 +41,41 @@
   function createStaticDots() {
     const wrap = document.querySelector('.stars-bg');
     if (!wrap) return;
-    for (let i=0;i<100;i++) {
+    for (let i = 0; i < 100; i++) {
       const dot = document.createElement('div');
-      dot.style.position='absolute';
-      dot.style.width='2px';
-      dot.style.height='2px';
-      dot.style.background='rgba(255,255,255,' + (0.2 + Math.random()*0.6) +')';
+      dot.className = 'star-dot';
+      dot.style.position = 'absolute';
+      dot.style.width = '2px';
+      dot.style.height = '2px';
+      dot.style.background = 'rgba(255,255,255,' + (0.2 + Math.random()*0.6) + ')';
       dot.style.left = Math.random()*window.innerWidth + 'px';
       dot.style.top = Math.random()*window.innerHeight + 'px';
-      dot.style.borderRadius='50%';
-      dot.style.filter = 'blur(0.4px)';
+      dot.style.borderRadius = '50%';
+      dot.style.filter = 'blur(0.6px)';
+      dot.style.pointerEvents = 'none';
       wrap.appendChild(dot);
+
+      // twinkle effect
+      dot.animate(
+        [
+          { opacity: dot.style.backgroundOpacity || 0.3 },
+          { opacity: 1 },
+          { opacity: dot.style.backgroundOpacity || 0.3 }
+        ],
+        {
+          duration: 4000 + Math.random() * 4000,
+          iterations: Infinity
+        }
+      );
     }
   }
 
   window.addEventListener('load', function() {
     createStaticDots();
     setInterval(spawn, 1800 + Math.random()*1200);
-    window.addEventListener('resize', function(){ document.querySelectorAll('.stars-bg > div').forEach(el=>el.remove()); createStaticDots(); });
+    window.addEventListener('resize', function() {
+      document.querySelectorAll('.stars-bg > div').forEach(el => el.remove());
+      createStaticDots();
+    });
   });
 })();
