@@ -149,12 +149,13 @@
         <h2>From Me to You</h2>
         <div class="greeting">Hey {{ session.get('username', 'beautiful') }} 💌</div>
       </div>
-        <nav class="nav">
-          <a href="{{ url_for('index') }}" >🏠 Home</a>
-          <a href="{{ url_for('love_notes') }}"class="active">💌 Love Notes</a>
-          <a href="{{ url_for('memories') }}">📸 Memories</a>
-          <a href="{{ url_for('special_days') }}">🎉 Special Days</a>
-        </nav>
+      <nav class="nav">
+        <a href="{{ url_for('index') }}">🏠 Home</a>
+        <a href="{{ url_for('love_notes') }}"class="active">💌 Love Notes</a>
+        <a href="{{ url_for('memories') }}">📸 Memories</a>
+        <a href="{{ url_for('special_days') }}">🎉 Special Days</a>
+        <a href="{{ url_for('bucket_list') }}" >🪣 Bucket List</a>
+      </nav>
       <div class="foot">
         <a href="{{ url_for('logout') }}" style="color:#ffd8a6;">Logout</a>
       </div>

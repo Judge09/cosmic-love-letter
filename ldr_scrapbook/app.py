@@ -99,6 +99,11 @@ def index():
         days_until=days_until
     )
 
+@app.route("/bucket-list")
+def bucket_list():
+    return render_template("bucket_list.html")
+
+
 @app.route("/love-notes", methods=["GET", "POST"])
 def love_notes():
     if not session.get("logged_in"):

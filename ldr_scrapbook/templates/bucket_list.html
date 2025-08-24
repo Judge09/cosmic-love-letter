@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bucket List — Cosmic Love</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/stars.js') }}"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+  <style>
+    .bucket-card { grid-column:1/-1; width:100%; max-width:1000px; margin:0 auto; padding:18px; }
+    .bucket-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+    .bucket-item { background:rgba(255,255,255,0.05); padding:14px; border-radius:10px; }
+    .bucket-item h3 { margin:0 0 6px; font-size:18px; color:#ffd8ff; }
+    .bucket-item small { color:#d3b9ff; font-size:13px; }
+    .bucket-actions { display:flex; gap:6px; margin-top:10px; }
+    .btn { background:#c084fc; color:#fff; border:none; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:700; font-size:14px; }
+    .btn-ghost { background:transparent; border:1px solid rgba(255,255,255,0.06); color:#ffd8ff; }
+  </style>
+</head>
+<body>
+  <div class="stars-bg"></div>
+
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <h2>From Me to You</h2>
+        <div class="greeting">Hey {{ session.get('username', 'beautiful') }} 💌</div>
+      </div>
+
+      <nav class="nav">
+        <a href="{{ url_for('index') }}">🏠 Home</a>
+        <a href="{{ url_for('love_notes') }}">💌 Love Notes</a>
+        <a href="{{ url_for('memories') }}">📸 Memories</a>
+        <a href="{{ url_for('special_days') }}">🎉 Special Days</a>
+        <a href="{{ url_for('bucket_list') }}" class="active">🪣 Bucket List</a>
+      </nav>
+
+      <div class="foot">
+        <a href="{{ url_for('logout') }}" style="color:#ffd8a6; text-decoration:none;">🚪 Logout</a>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <header class="header" style="text-align:left;">
+        <h1>Bucket List 🪣</h1>
+        <p class="sub">Add categories, countries, and experiences to your shared list</p>
+      </header>
+
+      <section class="bucket-card">
+        <!-- Form -->
+        <form id="bucket-form" style="margin-bottom:18px;">
+          <input type="text" id="bucket-title" placeholder="What do you want to do?" 
+            style="padding:10px; border-radius:8px; border:none; background:rgba(255,255,255,0.05); color:#fff; width:100%; margin-bottom:8px;">
+          
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <select id="bucket-category" style="flex:1; padding:10px; border-radius:8px; border:none; background:rgba(255,255,255,0.05); color:#fff;">
+              <option value="travel">🌍 Travel</option>
+              <option value="food">🍜 Food</option>
+              <option value="adventure">⛰️ Adventure</option>
+              <option value="life">💫 Life</option>
+            </select>
+            <input type="text" id="bucket-country" placeholder="Country (optional)" 
+              style="flex:1; padding:10px; border-radius:8px; border:none; background:rgba(255,255,255,0.05); color:#fff;">
+            <button type="submit" class="btn">Add</button>
+          </div>
+          <p id="form-msg" style="margin-top:6px; font-size:14px;"></p>
+        </form>
+
+        <!-- Bucket List -->
+        <div id="bucket-container" class="bucket-list">
+          <p style="color:#d6bfff;">Loading bucket list…</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+(() => {
+  const SUPABASE_URL = "{{ SUPABASE_URL }}";
+  const SUPABASE_KEY = "{{ SUPABASE_KEY }}";
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const bucketForm = document.getElementById("bucket-form");
+  const titleInput = document.getElementById("bucket-title");
+  const categoryInput = document.getElementById("bucket-category");
+  const countryInput = document.getElementById("bucket-country");
+  const formMsg = document.getElementById("form-msg");
+  const container = document.getElementById("bucket-container");
+
+  function renderItem(item) {
+    const el = document.createElement("div");
+    el.className = "bucket-item";
+    el.innerHTML = `
+      <h3>${item.title}</h3>
+      <small>${item.category ? "📂 " + item.category : ""} ${item.country ? "• 🌍 " + item.country : ""}</small>
+      <div class="bucket-actions">
+        <button class="btn-ghost" onclick="deleteItem(${item.id})">Delete</button>
+      </div>
+    `;
+    return el;
+  }
+
+  async function loadItems() {
+    container.innerHTML = `<p style="color:#d6bfff;">Loading bucket list…</p>`;
+    const { data, error } = await client.from("bucket_list").select("*").order("id", { ascending: false });
+    if (error) {
+      container.innerHTML = `<p style="color:#f88;">Error loading bucket list</p>`;
+      console.error(error);
+      return;
+    }
+    if (!data || data.length === 0) {
+      container.innerHTML = `<p style="color:#d6bfff;">No items yet — add your first dream! ✨</p>`;
+      return;
+    }
+    container.innerHTML = "";
+    data.forEach(item => container.appendChild(renderItem(item)));
+  }
+
+  bucketForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const title = titleInput.value.trim();
+    const category = categoryInput.value;
+    const country = countryInput.value.trim();
+
+    if (!title) {
+      formMsg.textContent = "Please enter a title 💌";
+      formMsg.style.color = "#f88";
+      return;
+    }
+
+    const { error } = await client.from("bucket_list").insert([{ title, category, country }]);
+    if (error) {
+      formMsg.textContent = "Error saving 😢";
+      formMsg.style.color = "#f88";
+      console.error(error);
+    } else {
+      formMsg.textContent = "Added to your bucket list! 🎉";
+      formMsg.style.color = "#8ef08e";
+      titleInput.value = "";
+      countryInput.value = "";
+      await loadItems();
+    }
+  });
+
+  window.deleteItem = async function(id) {
+    if (!confirm("Delete this item?")) return;
+    const { error } = await client.from("bucket_list").delete().eq("id", id);
+    if (error) {
+      console.error(error);
+      alert("Error deleting");
+    } else {
+      await loadItems();
+    }
+  }
+
+  loadItems();
+})();
+</script>
+</body>
+</html>
