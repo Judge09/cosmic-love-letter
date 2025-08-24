@@ -3,39 +3,173 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Memories — Cosmic Love</title>
+  <title>Memories — Cosmic Love (WIP) 🚧</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+    /* WIP banner + subtle styling to match app theme */
+    .wip-banner {
+      display:flex;
+      align-items:center;
+      gap:12px;
+      background: linear-gradient(90deg, rgba(255,200,120,0.06), rgba(255,140,120,0.03));
+      border: 1px dashed rgba(255,200,120,0.12);
+      padding:12px 14px;
+      border-radius:12px;
+      color:#ffd8a6;
+      box-shadow: 0 8px 30px rgba(120,70,200,0.03);
+      margin-bottom:14px;
+      font-weight:800;
+    }
+    .wip-emoji {
+      font-size:22px;
+      transform:translateY(0);
+      animation: wobble 1.6s ease-in-out infinite;
+    }
+    @keyframes wobble {
+      0% { transform: rotate(-6deg); }
+      50% { transform: rotate(6deg); }
+      100% { transform: rotate(-6deg); }
+    }
+
+    /* disabled upload area styling */
+    .upload-placeholder {
+      margin-top:10px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:18px;
+      border-radius:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+      border:1px solid rgba(255,255,255,0.03);
+      color:#d6bfff;
+      justify-content:space-between;
+    }
+    .upload-left { display:flex; gap:12px; align-items:center; min-width:0; }
+    .upload-left .icon { font-size:28px; }
+    .upload-left .text { color:#d3b9ff; font-size:14px; }
+
+    .upload-disabled {
+      opacity:0.6;
+      pointer-events:none;
+    }
+
+    .barricade-stripe {
+      display:inline-block;
+      background: linear-gradient(90deg, #ffd6d6 0 40%, transparent 40% 60%, #ffd6d6 60% 100%);
+      width:100%;
+      height:8px;
+      border-radius:6px;
+      margin:10px 0;
+      box-shadow: inset 0 -6px 10px rgba(0,0,0,0.06);
+    }
+
+    .gallery-placeholder {
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap:12px;
+      margin-top:12px;
+    }
+    .thumb {
+      background: linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+      border-radius:10px;
+      padding:24px;
+      min-height:120px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#bdaeff;
+      border:1px dashed rgba(255,255,255,0.03);
+    }
+
+    .muted-small { color:#bdaeff; font-size:13px; }
+
+    /* keep layout responsive and consistent with existing theme */
+    @media (max-width:880px) {
+      .wip-banner { font-size:14px; gap:8px; padding:10px; }
+      .upload-placeholder { padding:12px; }
+      .thumb { padding:16px; min-height:100px; }
+    }
+  </style>
 </head>
 <body>
   <div class="stars-bg"></div>
   <div class="container">
     <aside class="sidebar">
       <div class="brand"><h2>From Me to You</h2><div class="greeting">Hey beautiful 💌</div></div>
-      <nav class="nav">
-        <a href="{{ url_for('index') }}">Home</a>
-        <a href="{{ url_for('love_notes') }}">Love Notes</a>
-        <a href="{{ url_for('memories') }}" class="active">Memories</a>
-        <a href="{{ url_for('special_days') }}">Special Days</a>
-        <a href="{{ url_for('settings') }}">Settings</a>
-      </nav>
+        <nav class="nav">
+          <a href="{{ url_for('index') }}" >🏠 Home</a>
+          <a href="{{ url_for('love_notes') }}">💌 Love Notes</a>
+          <a href="{{ url_for('memories') }}" class="active">📸 Memories</a>
+          <a href="{{ url_for('special_days') }}">🎉 Special Days</a>
+        </nav>
       <div class="foot"><a href="{{ url_for('logout') }}" style="color:#ffd8a6;">Logout</a></div>
     </aside>
 
     <main class="main">
-      <header class="header"><h1>Memories 📷</h1><p class="sub">Upload and view photos & videos — placeholder gallery</p></header>
+      <header class="header">
+        <h1>Memories 📷</h1>
+        <p class="sub">Upload and view photos & videos — placeholder gallery</p>
+      </header>
 
       <section class="grid" style="max-width:1100px; margin:0 auto;">
-        <div class="card" style="grid-column:1/-1;">
-          <h3>Upload media</h3>
-          <p style="color:#d6bfff;">(Supabase storage not yet connected.)</p>
-          <input type="file" accept="image/*,video/*" disabled style="opacity:0.6;">
-          <p style="font-size:13px; color:#bdaeff;">I can wire uploads to Supabase Storage next — want that now?</p>
+
+        <!-- WIP banner -->
+        <div style="grid-column:1/-1;">
+          <div class="wip-banner">
+            <div class="wip-emoji">🚧</div>
+            <div>
+              <div style="font-weight:900;">Work in progress — Memories</div>
+              <div class="muted-small">This area is still being built. Media uploads, thumbnails, and Supabase Storage integration will arrive soon.</div>
+            </div>
+            <div style="margin-left:auto; color:#ffd8a6;">Expected: WIP</div>
+          </div>
         </div>
 
         <div class="card" style="grid-column:1/-1;">
-          <h3>Gallery</h3>
-          <p style="color:#d6bfff;">No images yet. After you upload, thumbnails will show here.</p>
+          <h3>Upload media <span style="margin-left:8px;">🚧</span></h3>
+          <div class="barricade-stripe" aria-hidden="true"></div>
+
+          <!-- disabled upload placeholder -->
+          <div class="upload-placeholder upload-disabled">
+            <div class="upload-left">
+              <div class="icon">🛠️</div>
+              <div class="text">
+                <div style="font-weight:800; color:#ffd8ff;">Uploads disabled — WIP</div>
+                <div class="muted-small">Supabase Storage integration not yet connected.</div>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+              <input type="file" accept="image/*,video/*" disabled style="opacity:0.5;">
+              <div class="muted-small">Want this wired now? I can add upload & thumbnail support.</div>
+            </div>
+          </div>
         </div>
+
+        <div class="card" style="grid-column:1/-1;">
+          <h3>Gallery <span style="margin-left:8px;">🔒🚧</span></h3>
+          <p style="color:#d6bfff;">No images yet. After you upload, thumbnails will show here.</p>
+
+          <div class="gallery-placeholder" aria-hidden="true">
+            <!-- illustrative placeholder thumbnails with barricade emoji -->
+            <div class="thumb">🚧 WIP</div>
+            <div class="thumb">🚧 WIP</div>
+            <div class="thumb">🚧 WIP</div>
+            <div class="thumb">🚧 WIP</div>
+            <div class="thumb">🚧 WIP</div>
+            <div class="thumb">🚧 WIP</div>
+          </div>
+
+          <div style="margin-top:12px;">
+            <div class="muted-small">If you'd like, I can:</div>
+            <ul style="color:#d3b9ff; margin-top:8px;">
+              <li>Wire file uploads to Supabase Storage (with public/private buckets)</li>
+              <li>Generate thumbnails & show previews in the gallery</li>
+              <li>Add basic image moderation / size limits and progress UI</li>
+            </ul>
+          </div>
+        </div>
+
       </section>
     </main>
   </div>

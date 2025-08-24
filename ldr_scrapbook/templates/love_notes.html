@@ -5,24 +5,156 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Love Notes — Cosmic Love</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/stars.js') }}"></script>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* Page-specific enhancements to match the app theme and enlarge typing areas */
+    .grid { max-width: 980px; margin: 0 auto; }
+
+    .card.write-note {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.015));
+      border-radius: 14px;
+      box-shadow: 0 16px 44px rgba(120,70,200,0.06);
+    }
+
+    /* ENLARGED textarea: bigger, more padding, larger font for comfortable typing */
+    #note-content {
+      resize: vertical;
+      min-height: 160px;     /* <- enlarged */
+      max-height: 520px;
+      font-size: 18px;       /* <- larger font */
+      line-height: 1.6;
+      border-radius: 12px;
+      border: none;
+      outline: none;
+      padding: 16px;         /* <- more padding to make typing comfortable */
+      background: rgba(255,255,255,0.035);
+      color: #fff;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.25);
+      width: 100%;
+    }
+
+    /* Save button larger and visually stronger */
+    .btn-primary {
+      background: linear-gradient(90deg,#8b5cf6,#c084fc);
+      color: #fff;
+      border: none;
+      padding: 12px 16px;    /* <- larger hit area */
+      border-radius: 12px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 12px 40px rgba(136,76,216,0.12);
+      font-size: 15px;
+    }
+    .btn-primary:disabled { opacity: .6; cursor:not-allowed; }
+
+    .tiny-note {
+      color: #d3b9ff;
+      font-size: 13px;
+    }
+
+    /* notes list card */
+    .card.notes {
+      padding: 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.02);
+      box-shadow: 0 8px 30px rgba(120,70,200,0.04);
+    }
+    .note-item {
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      padding:14px;
+      border-radius: 12px;
+      transition: background .12s ease, transform .08s ease;
+    }
+    .note-item:hover { background: rgba(255,255,255,0.02); transform: translateY(-3px); }
+
+    .avatar {
+      width:56px;            /* <- larger avatar to match enlarged typing UI */
+      height:56px;
+      border-radius:12px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      background: linear-gradient(90deg,#c084fc,#ffd6f7);
+      color:#120014;
+      flex-shrink:0;
+      font-size:20px;
+    }
+
+    .note-body {
+      flex:1;
+      min-width:0;
+    }
+    .note-meta {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      justify-content:space-between;
+      margin-top:8px;
+    }
+    .note-meta .meta-left { color:#d3b9ff; font-size:13px; }
+    .note-meta .meta-right { color:#d3b9ff; font-size:13px; display:flex; gap:8px; align-items:center; }
+
+    .note-text { white-space:pre-wrap; color:#fff; font-size:16px; }
+
+    .note-empty {
+      color:#d6bfff;
+      text-align:center;
+      padding:28px 0;
+    }
+
+    .muted { color:#bda7ff; }
+
+    /* delete button */
+    .note-delete {
+      background: #ff7b7b;
+      border: none;
+      color: #111;
+      padding:8px 10px;
+      border-radius:10px;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    /* char counter */
+    #chars-left { font-weight:700; color:#d3b9ff; }
+
+    /* responsive adjustments */
+    @media (max-width:1000px){
+      #note-content { min-height: 140px; font-size:16px; padding:14px; }
+      .avatar { width:48px; height:48px; font-size:18px; }
+      .note-item { padding:12px; gap:12px; border-radius:10px; }
+      .btn-primary { padding:10px 12px; font-size:14px; }
+    }
+    @media (max-width:600px){
+      #note-content { min-height:120px; font-size:15px; padding:12px; }
+      .avatar { width:44px; height:44px; font-size:16px; }
+    }
+  </style>
 </head>
 <body>
   <div class="stars-bg"></div>
   <div class="container">
-    <!-- Sidebar -->
+    <!-- Sidebar (matches other pages) -->
     <aside class="sidebar">
       <div class="brand">
         <h2>From Me to You</h2>
-        <div class="greeting">Hey beautiful 💌</div>
+        <div class="greeting">Hey {{ session.get('username', 'beautiful') }} 💌</div>
       </div>
-      <nav class="nav">
-        <a href="{{ url_for('index') }}">Home</a>
-        <a href="{{ url_for('love_notes') }}" class="active">Love Notes</a>
-        <a href="{{ url_for('memories') }}">Memories</a>
-        <a href="{{ url_for('special_days') }}">Special Days</a>
-        <a href="{{ url_for('settings') }}">Settings</a>
-      </nav>
+        <nav class="nav">
+          <a href="{{ url_for('index') }}" >🏠 Home</a>
+          <a href="{{ url_for('love_notes') }}"class="active">💌 Love Notes</a>
+          <a href="{{ url_for('memories') }}">📸 Memories</a>
+          <a href="{{ url_for('special_days') }}">🎉 Special Days</a>
+        </nav>
       <div class="foot">
         <a href="{{ url_for('logout') }}" style="color:#ffd8a6;">Logout</a>
       </div>
@@ -35,26 +167,32 @@
         <p class="sub">Sweet messages you both add — saved in real-time</p>
       </header>
 
-      <section class="grid" style="max-width:900px; margin:0 auto;">
+      <section class="grid" style="max-width:980px; margin:0 auto;">
         <!-- Write Note -->
-        <div class="card" style="grid-column:1/-1;">
-          <h3>Write a love note</h3>
-          <form id="note-form">
-            <textarea id="note-content" rows="4"
-              style="width:100%; border-radius:8px; padding:10px;
-              background:rgba(255,255,255,0.05); color:#fff;"></textarea>
-            <button type="submit"
-              style="margin-top:8px; padding:8px 12px; border-radius:8px;
-              border:none; background:#c084fc; color:#fff;">Save note</button>
+        <div class="card write-note" style="grid-column:1/-1;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="margin:0;">Write a love note</h3>
+            <div class="tiny-note">Be kind, be sweet 💜</div>
+          </div>
+
+          <form id="note-form" style="display:block; width:100%;">
+            <textarea id="note-content" rows="6" placeholder="Write something sweet…"></textarea>
+
+            <div class="form-actions" style="margin-top:8px;">
+              <div id="chars-left">0 / 1000</div>
+              <div style="display:flex; gap:8px;">
+                <button id="save-note" class="btn-primary" type="submit">Save note</button>
+              </div>
+            </div>
+            <p id="form-msg" style="margin-top:8px; font-size:14px;"></p>
           </form>
-          <p id="form-msg" style="margin-top:6px; font-size:14px;"></p>
         </div>
 
         <!-- Notes List -->
-        <div class="card" id="notes-list" style="grid-column:1/-1;">
-          <h3>Recent notes</h3>
-          <div id="notes-container" style="margin-top:10px;">
-            <p style="color:#d6bfff;">Loading notes...</p>
+        <div class="card notes" id="notes-list" style="grid-column:1/-1;">
+          <h3 style="margin-top:0;">Recent notes</h3>
+          <div id="notes-container" style="margin-top:12px;">
+            <p class="note-empty">Loading notes…</p>
           </div>
         </div>
       </section>
@@ -62,60 +200,137 @@
   </div>
 
 <script>
+  // Supabase client (global supabase script used)
   const SUPABASE_URL = "{{ SUPABASE_URL }}";
   const SUPABASE_KEY = "{{ SUPABASE_KEY }}";
   const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  // DOM
   const notesContainer = document.getElementById("notes-container");
   const noteForm = document.getElementById("note-form");
   const noteInput = document.getElementById("note-content");
   const formMsg = document.getElementById("form-msg");
-  const userId = "{{ session['user_id'] }}"; // ensure this is passed from Flask
+  const saveBtn = document.getElementById("save-note");
+  const charsLeftEl = document.getElementById("chars-left");
+
+  // Server-provided context
+  const userId = "{{ session['user_id'] }}";
+  const currentUsername = "{{ session.get('username','You') }}";
+
+  // local cache
+  let notesCache = [];
+
+  function formatTimestamp(ts) {
+    try {
+      const d = new Date(ts);
+      return d.toLocaleString(undefined, { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+    } catch(e) {
+      return ts;
+    }
+  }
+
+  function initials(name) {
+    if(!name) return '💌';
+    const parts = name.trim().split(/\s+/).slice(0,2);
+    return parts.map(p => p[0]?.toUpperCase() || '').join('');
+  }
 
   function renderNote(note, prepend = true) {
     const node = document.createElement("div");
-    node.style.padding = "10px";
-    node.style.marginTop = "8px";
-    node.style.background = "rgba(255,255,255,0.05)";
-    node.style.borderRadius = "6px";
+    node.className = 'note-item';
 
-    node.innerHTML = `
-      <p>${note.content}</p>
-      <small style="color:#aaa; font-size:12px;">
-        Posted by <strong>${note.username || 'Unknown'}</strong> • 
-        ${new Date(note.created_at).toLocaleString()}
-      </small>
-    `;
+    const avatar = document.createElement("div");
+    avatar.className = 'avatar';
+    avatar.textContent = note.username ? initials(note.username) : (note.user_id === userId ? initials(currentUsername) : '💌');
+
+    const body = document.createElement("div");
+    body.className = 'note-body';
+
+    const text = document.createElement("div");
+    text.className = 'note-text';
+    text.textContent = note.content;
+
+    const meta = document.createElement("div");
+    meta.className = 'note-meta';
+
+    const left = document.createElement("div");
+    left.className = 'meta-left';
+    left.innerHTML = `<strong style="color:#fff">${note.username || (note.user_id === userId ? currentUsername : 'Someone')}</strong> • ${formatTimestamp(note.created_at)}`;
+
+    const right = document.createElement("div");
+    right.className = 'meta-right';
+
+    // Delete button if this is user's note
+    if (String(note.user_id) === String(userId)) {
+      const del = document.createElement("button");
+      del.className = 'note-delete';
+      del.textContent = 'Delete';
+      del.onclick = async () => {
+        if (!confirm('Delete this note?')) return;
+        const { error } = await client.from('love_notes').delete().eq('id', note.id);
+        if (error) {
+          console.error("delete note error", error);
+          formMsg.textContent = "Delete failed";
+          formMsg.style.color = "#f88";
+        } else {
+          loadNotes();
+        }
+      };
+      right.appendChild(del);
+    }
+
+    meta.appendChild(left);
+    meta.appendChild(right);
+
+    body.appendChild(text);
+    body.appendChild(meta);
+
+    node.appendChild(avatar);
+    node.appendChild(body);
 
     if (prepend) notesContainer.prepend(node);
     else notesContainer.appendChild(node);
   }
 
   async function loadNotes() {
-    notesContainer.innerHTML = `<p style="color:#d6bfff;">Loading notes...</p>`;
-    const { data, error } = await client
-      .from("love_notes")
-      .select("*, users(username)")
-      .order("created_at", { ascending: false });
+    notesContainer.innerHTML = `<p class="note-empty">Loading notes…</p>`;
+    try {
+      const { data, error } = await client
+        .from("love_notes")
+        .select("*, users(username)")
+        .order("created_at", { ascending: false })
+        .limit(200);
 
-    if (error) {
-      notesContainer.innerHTML = `<p style="color:#f88;">Error loading notes.</p>`;
-      console.error(error);
-      return;
+      if (error) {
+        console.error("load notes error", error);
+        notesContainer.innerHTML = `<p class="note-empty">Error loading notes.</p>`;
+        return;
+      }
+
+      notesCache = (data || []).map(r => {
+        return {
+          id: r.id,
+          content: r.content,
+          user_id: r.user_id,
+          username: (r.users && r.users.username) || (r.user_id === userId ? currentUsername : 'Someone'),
+          created_at: r.created_at
+        };
+      });
+
+      if (!notesCache.length) {
+        notesContainer.innerHTML = `<p class="note-empty">No notes yet. Be the first 💜</p>`;
+        return;
+      }
+
+      notesContainer.innerHTML = "";
+      notesCache.forEach(n => renderNote(n, false));
+    } catch (e) {
+      console.error(e);
+      notesContainer.innerHTML = `<p class="note-empty">Error loading notes.</p>`;
     }
-
-    notesContainer.innerHTML = "";
-    if (!data || data.length === 0) {
-      notesContainer.innerHTML = `<p style="color:#d6bfff;">No notes yet. Be the first 💜</p>`;
-      return;
-    }
-
-    data.forEach(note => {
-      note.username = note.users?.username || "Unknown";
-      renderNote(note, false);
-    });
   }
 
+  // save note
   noteForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const content = noteInput.value.trim();
@@ -124,32 +339,50 @@
       formMsg.style.color = "#f88";
       return;
     }
+    if (content.length > 1000) {
+      formMsg.textContent = "Note is too long (max 1000 chars).";
+      formMsg.style.color = "#f88";
+      return;
+    }
 
-    const { error } = await client
-      .from("love_notes")
-      .insert([{ content, user_id: userId }]);
+    saveBtn.disabled = true;
+    formMsg.textContent = "Saving…";
+    formMsg.style.color = "#d3b9ff";
 
+    const { error } = await client.from("love_notes").insert([{ content, user_id: userId }]);
     if (error) {
+      console.error("insert note error", error);
       formMsg.textContent = "Error saving note 😢";
       formMsg.style.color = "#f88";
-      console.error(error);
-    } else {
-      formMsg.textContent = "Note saved! 🎉";
-      formMsg.style.color = "#8ef08e";
-      noteInput.value = "";
+      saveBtn.disabled = false;
+      return;
     }
+
+    formMsg.textContent = "Note saved! 🎉";
+    formMsg.style.color = "#8ef08e";
+    noteInput.value = "";
+    charsLeftEl.textContent = "0 / 1000";
+    saveBtn.disabled = false;
+
+    await loadNotes();
   });
 
-  client
-    .channel("love_notes_changes")
-    .on("postgres_changes",
-      { event: "INSERT", schema: "public", table: "love_notes" },
-      (payload) => {
-        payload.new.username = payload.new.users?.username || "Unknown";
-        renderNote(payload.new);
-      })
+  // char count
+  noteInput.addEventListener('input', () => {
+    const n = noteInput.value.length;
+    charsLeftEl.textContent = `${n} / 1000`;
+    if (n > 900) charsLeftEl.style.color = '#ffd6ea';
+    else charsLeftEl.style.color = '#d3b9ff';
+  });
+
+  // realtime subscription: reload list on INSERT / DELETE / UPDATE
+  client.channel('public:love_notes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'love_notes' }, (payload) => {
+      loadNotes();
+    })
     .subscribe();
 
+  // initial load
   loadNotes();
 </script>
 

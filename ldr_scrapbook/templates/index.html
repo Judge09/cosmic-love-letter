@@ -1,214 +1,246 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Home — Cosmic Love</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
-  <div class="stars-bg"></div>
+  <!doctype html>
+  <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Home — Cosmic Love</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  </head>
+  <body>
+    <div class="stars-bg"></div>
 
-  <div class="container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="brand">
-        <h2>From Me to You</h2>
-        <div class="greeting">Hey {{ username or 'beautiful' }} 💌</div>
-      </div>
-
-      <nav class="nav">
-        <a href="{{ url_for('index') }}" class="active">🏠 Home</a>
-        <a href="{{ url_for('love_notes') }}">💌 Love Notes</a>
-        <a href="{{ url_for('memories') }}">📸 Memories</a>
-        <a href="{{ url_for('special_days') }}">🎉 Special Days</a>
-        <a href="{{ url_for('settings') }}">⚙️ Settings</a>
-      </nav>
-
-      <div class="foot">
-        <a href="{{ url_for('logout') }}" style="color:#ffd8a6; text-decoration:none;">🚪 Logout</a>
-      </div>
-    </aside>
-
-    <!-- Main -->
-    <main class="main">
-      <header class="header">
-        <h1>Good day, {{ username or 'love' }} ✨</h1>
-        <p class="sub">Your shared space of love & little rituals 💖</p>
-      </header>
-
-      <section class="grid">
-        <!-- Timezone widget -->
-        <div class="card">
-          <h3>🕒 Your Time — Los Angeles</h3>
-          <div class="time" id="time-la">{{ monrovia_time }}</div>
-          <div class="tiny" id="date-la">Loading date…</div>
-          <div class="tiny">America/Los_Angeles</div>
+    <div class="container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="brand">
+          <h2>From Me to You</h2>
+          <div class="greeting">Hey {{ username or 'beautiful' }} 💌</div>
         </div>
 
-        <div class="card">
-          <h3>🕒 My Time — Manila</h3>
-          <div class="time" id="time-manila">{{ manila_time }}</div>
-          <div class="tiny" id="date-manila">Loading date…</div>
-          <div class="tiny">Asia/Manila</div>
-        </div>
+        <nav class="nav">
+          <a href="{{ url_for('index') }}" class="active">🏠 Home</a>
+          <a href="{{ url_for('love_notes') }}">💌 Love Notes</a>
+          <a href="{{ url_for('memories') }}">📸 Memories</a>
+          <a href="{{ url_for('special_days') }}">🎉 Special Days</a>
+        </nav>
 
-        <!-- Daily Love Note -->
-        <div class="card love-note" style="grid-column: 1 / -1;">
-          <h3>💜 Today’s Love Note</h3>
-          <div class="note" id="love-note">
-            {{ love_quote or "Distance means nothing when someone means everything 🌞" }}
+        <div class="foot">
+          <a href="{{ url_for('logout') }}" style="color:#ffd8a6; text-decoration:none;">🚪 Logout</a>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <main class="main">
+        <header class="header">
+          <h1>Hawooooo, {{ username or 'love' }} ✨</h1>
+          <p class="sub">Your shared space of love & little rituals 💖</p>
+        </header>
+
+        <section class="grid">
+          <!-- Timezone widget -->
+          <div class="card">
+            <h3>🕒 Your Time — Los Angeles</h3>
+            <div class="time" id="time-la">{{ monrovia_time }}</div>
+            <div class="tiny" id="date-la">Loading date…</div>
+            <div class="tiny">America/Los_Angeles</div>
           </div>
-          <div style="text-align:right; margin-top:8px; color:#d9b8ff;">— your favorite person ✨</div>
-        </div>
 
-        <!-- Anniversary & Monthsary -->
-        <div class="card countdown">
-          <h3>⏳ Anniversary & Monthsary</h3>
-          <div class="big">
-            Months together (est.): <strong>{{ months }}</strong>
-            <span class="tiny" style="display:block;margin-top:6px;">(+ {{ days }} days)</span>
+          <div class="card">
+            <h3>🕒 My Time — Manila</h3>
+            <div class="time" id="time-manila">{{ manila_time }}</div>
+            <div class="tiny" id="date-manila">Loading date…</div>
+            <div class="tiny">Asia/Manila</div>
           </div>
-          <div class="tiny" style="margin-top:10px;">
-            Days until next anniversary:
-            <strong id="days-until">{{ days_until }}</strong>
+
+          <!-- Daily Love Note -->
+          <div class="card love-note" style="grid-column: 1 / -1;">
+            <h3>💜 Today’s Love Note</h3>
+            <div class="note" id="love-note">
+              {{ love_quote or "Distance means nothing when someone means everything 🌞" }}
+            </div>
+            <div style="text-align:right; margin-top:8px; color:#d9b8ff;">— your favorite person ✨</div>
           </div>
-          <div class="tiny" style="margin-top:6px;">
-            Live countdown (PH time): <span id="live-countdown">—</span>
+
+          <!-- Anniversary & Monthsary -->
+          <div class="card countdown">
+            <h3>⏳ Anniversary & Monthsary</h3>
+            <div class="big">
+              Months together (est.): <strong>{{ months }}</strong>
+              <span class="tiny" style="display:block;margin-top:6px;">(+ {{ days }} days)</span>
+            </div>
+            <div class="tiny" style="margin-top:10px;">
+              Days until next anniversary:
+              <strong id="days-until">{{ days_until }}</strong>
+            </div>
+            <div class="tiny" style="margin-top:6px;">
+              Live countdown (PH time): <span id="live-countdown">—</span>
+            </div>
           </div>
-        </div>
 
-        <!-- Reminders / Sweet rituals -->
-        <div class="card">
-          <h3>🔔 Reminders</h3>
-          <ul class="tiny" style="margin:8px 0 0 16px; line-height:1.6;">
-            <li>Anniversary on <strong>Nov 18</strong> — don’t forget a cute note 💐</li>
-            <li>Plan a video call that fits both timezones</li>
-            <li>Drop a daily check-in in <em>Love Notes</em> 💌</li>
-          </ul>
-          <a href="{{ url_for('special_days') }}" style="display:inline-block;margin-top:10px;">Manage special days →</a>
-        </div>
-
-        <!-- Mood Board Card -->
-        <div class="card">
-          <h3>💭 Mood Board</h3>
-          <div class="tiny">Share your current mood — updates in real-time!</div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
-            <button class="mood-btn" data-mood="😊" title="Happy">😊</button>
-            <button class="mood-btn" data-mood="🥺" title="Needs a hug">🥺</button>
-            <button class="mood-btn" data-mood="🧠" title="Busy">🧠</button>
-            <button class="mood-btn" data-mood="💤" title="Sleepy">💤</button>
-            <button class="mood-btn" data-mood="💪" title="Motivated">💪</button>
-            <button class="mood-btn" data-mood="💖" title="In love">💖</button>
+          <!-- Mood Board Card -->
+          <div class="card">
+            <h3>💭 Mood Board</h3>
+            <div class="tiny">Share your current mood — updates in real-time!</div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+              <button class="mood-btn" data-mood="😊" title="Happy">😊</button>
+              <button class="mood-btn" data-mood="🥺" title="Needs a hug">🥺</button>
+              <button class="mood-btn" data-mood="🧠" title="Busy">🧠</button>
+              <button class="mood-btn" data-mood="💤" title="Sleepy">💤</button>
+              <button class="mood-btn" data-mood="💪" title="Motivated">💪</button>
+              <button class="mood-btn" data-mood="💖" title="In love">💖</button>
+            </div>
+            <div class="tiny" id="mood-status" style="margin-top:10px;opacity:.9;">Current mood: —</div>
+            <div class="tiny" id="partner-mood" style="margin-top:6px;opacity:.9;">Partner's mood: —</div>
           </div>
-          <div class="tiny" id="mood-status" style="margin-top:10px;opacity:.9;">Current mood: —</div>
-          <div class="tiny" id="partner-mood" style="margin-top:6px;opacity:.9;">Partner's mood: —</div>
-        </div>
 
-        <!-- Playlists -->
-        <div class="card playlist" style="grid-column: 1 / -1;">
-          <h3>🎵 Shared Playlist — Her Favorites</h3>
-          <iframe src="https://open.spotify.com/embed/playlist/HER_PLAYLIST_ID"
-                  width="100%" height="80" frameborder="0" allow="encrypted-media"></iframe>
-        </div>
+          <!-- Playlists -->
+          <div class="card playlist" style="grid-column: 1 / -1;">
+            <h3>🎵 Shared Playlist — Her Story</h3>
+            <iframe src="https://open.spotify.com/embed/playlist/0Qr2HpJ6BuDazLO7EGM7L8"
+                    width="100%" height="80" frameborder="0" allow="encrypted-media"></iframe>
+          </div>
 
-        <div class="card playlist" style="grid-column: 1 / -1;">
-          <h3>🎵 Shared Playlist — His Favorites</h3>
-          <iframe src="https://open.spotify.com/embed/playlist/HIS_PLAYLIST_ID"
-                  width="100%" height="80" frameborder="0" allow="encrypted-media"></iframe>
-        </div>
+          <div class="card playlist" style="grid-column: 1 / -1;">
+            <h3>🎵 Shared Playlist — His Story</h3>
+            <iframe src="https://open.spotify.com/embed/playlist/7eQylV6LxATPHLmE8hZyHw"
+                    width="100%" height="80" frameborder="0" allow="encrypted-media"></iframe>
+          </div>
 
-      </section>
-    </main>
-  </div>
+        </section>
+      </main>
+    </div>
 
-  <!-- Welcome toast -->
-  <div class="toast" id="welcome-toast">
-    Welcome back, my love! 💕
-    <div style="font-size:12px; color:#333;">I missed you.</div>
-  </div>
+    <!-- Welcome toast -->
+    <div class="toast" id="welcome-toast">
+      Welcome back, my love! 💕
+      <div style="font-size:12px; color:#333;">I missed you.</div>
+    </div>
 
-  <!-- Scripts -->
-  <script src="{{ url_for('static', filename='js/stars.js') }}"></script>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
+      <!-- Scripts -->
+      <script src="{{ url_for('static', filename='js/stars.js') }}"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
 
-    // ----- Toast -----
-    const t = document.getElementById('welcome-toast');
+  // ----- Toast -----
+  const t = document.getElementById('welcome-toast');
+  if(t){
     t.style.display = 'block';
     t.style.opacity = '0';
     requestAnimationFrame(() => t.style.opacity = '1');
-    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.style.display='none',400); }, 5000);
+    setTimeout(() => { 
+      t.style.opacity = '0'; 
+      setTimeout(() => t.style.display='none', 400); 
+    }, 5000);
+  }
 
-    // ----- Timezone -----
-    const fmtTime = tz => new Intl.DateTimeFormat([], {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true,timeZone:tz}).format(new Date());
-    const fmtDate = tz => new Intl.DateTimeFormat([], {weekday:'long',year:'numeric',month:'long',day:'numeric',timeZone:tz}).format(new Date());
+  // ----- Timezone -----
+  const fmtTime = tz => new Intl.DateTimeFormat([], {
+    hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:true, timeZone:tz
+  }).format(new Date());
 
-    function updateTimes() {
-      const la='America/Los_Angeles', ph='Asia/Manila';
-      if (document.getElementById('time-la')) document.getElementById('time-la').textContent = fmtTime(la);
-      if (document.getElementById('date-la')) document.getElementById('date-la').textContent = fmtDate(la);
-      if (document.getElementById('time-manila')) document.getElementById('time-manila').textContent = fmtTime(ph);
-      if (document.getElementById('date-manila')) document.getElementById('date-manila').textContent = fmtDate(ph);
+  const fmtDate = tz => new Intl.DateTimeFormat([], {
+    weekday:'long', year:'numeric', month:'long', day:'numeric', timeZone:tz
+  }).format(new Date());
+
+  function updateTimes() {
+    const la='America/Los_Angeles', ph='Asia/Manila';
+    if(document.getElementById('time-la')) document.getElementById('time-la').textContent = fmtTime(la);
+    if(document.getElementById('date-la')) document.getElementById('date-la').textContent = fmtDate(la);
+    if(document.getElementById('time-manila')) document.getElementById('time-manila').textContent = fmtTime(ph);
+    if(document.getElementById('date-manila')) document.getElementById('date-manila').textContent = fmtDate(ph);
+  }
+  updateTimes();
+  setInterval(updateTimes, 1000);
+
+  // ----- Anniversary countdown -----
+  function nextAnniversaryDatePH() {
+    const now = new Date();
+    const year = now.getFullYear();
+    let target = new Date(Date.UTC(year,10,17,16,0,0));
+    const monthPH = parseInt(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Manila',month:'numeric'}).format(now));
+    const dayPH = parseInt(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Manila',day:'numeric'}).format(now));
+    if(monthPH > 11 || (monthPH===11 && dayPH > 18)) target = new Date(Date.UTC(year+1,10,17,16,0,0));
+    return target;
+  }
+
+  function tickCountdown() {
+    const diff = Math.max(0, nextAnniversaryDatePH().getTime() - Date.now());
+    const d = Math.floor(diff/(1000*60*60*24));
+    const h = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+    const m = Math.floor((diff%(1000*60*60))/(1000*60));
+    const s = Math.floor((diff%(1000*60))/1000);
+    const el = document.getElementById('live-countdown');
+    if(el) el.textContent = `${d}d ${h}h ${m}m ${s}s`;
+  }
+  tickCountdown();
+  setInterval(tickCountdown, 1000);
+
+  // ----- Supabase mood board -----
+  const SUPABASE_URL="{{ SUPABASE_URL }}";
+  const SUPABASE_KEY="{{ SUPABASE_KEY }}";
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const USER_ID="{{ session['user_id'] }}";
+  const PARTNER_ID="{{ session['partner_id'] }}";
+
+  const moodButtons = document.querySelectorAll('.mood-btn');
+  const yourMoodEl = document.getElementById('mood-status');
+  const partnerMoodEl = document.getElementById('partner-mood');
+
+  async function updateMoods(){
+    try {
+      const {data, error} = await client.from('moods')
+        .select('*')
+        .in('user_id',[USER_ID,PARTNER_ID])
+        .order('created_at',{ascending:false});
+      if(error) return console.error("Fetch moods error:", error);
+
+      const latest = {};
+      data.forEach(r => { if(!latest[r.user_id]) latest[r.user_id] = r.mood; });
+      yourMoodEl.textContent = `Current mood: ${latest[USER_ID]||'—'}`;
+      partnerMoodEl.textContent = `Partner's mood: ${latest[PARTNER_ID]||'—'}`;
+
+      moodButtons.forEach(btn => {
+        btn.style.border = (btn.dataset.mood === latest[USER_ID]) ? '2px solid #8ef08e' : '1px solid rgba(255,255,255,0.08)';
+      });
+
+    } catch(err) {
+      console.error("updateMoods exception:", err);
     }
-    updateTimes(); setInterval(updateTimes,1000);
+  }
 
-    // ----- Anniversary countdown -----
-    function nextAnniversaryDatePH() {
-      const now=new Date(); const year=now.getFullYear();
-      let target=new Date(Date.UTC(year,10,17,16,0,0));
-      const monthPH=parseInt(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Manila',month:'numeric'}).format(now));
-      const dayPH=parseInt(new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Manila',day:'numeric'}).format(now));
-      if(monthPH>11||(monthPH===11&&dayPH>18)) target=new Date(Date.UTC(year+1,10,17,16,0,0));
-      return target;
+  async function setMood(mood){
+    // Update UI immediately
+    yourMoodEl.textContent = `Current mood: ${mood}`;
+    moodButtons.forEach(btn => {
+      btn.style.border = (btn.dataset.mood === mood) ? '2px solid #8ef08e' : '1px solid rgba(255,255,255,0.08)';
+    });
+
+    // Upsert mood into Supabase to avoid conflicts
+    try {
+      const {error} = await client.from('moods')
+        .upsert({user_id: USER_ID, mood}, {onConflict:'user_id'});
+      if(error) console.error("Mood upsert error:", error);
+    } catch(err){
+      console.error("JS upsert exception:", err);
     }
-    function tickCountdown() {
-      const diff=Math.max(0,nextAnniversaryDatePH().getTime()-Date.now());
-      const d=Math.floor(diff/(1000*60*60*24));
-      const h=Math.floor((diff%(1000*60*60*24))/(1000*60*60));
-      const m=Math.floor((diff%(1000*60*60))/(1000*60));
-      const s=Math.floor((diff%(1000*60))/1000);
-      const el=document.getElementById('live-countdown');
-      if(el) el.textContent=`${d}d ${h}h ${m}m ${s}s`;
-    }
-    tickCountdown(); setInterval(tickCountdown,1000);
+  }
 
-    // ----- Supabase mood board -----
-    const SUPABASE_URL="{{ SUPABASE_URL }}";
-    const SUPABASE_KEY="{{ SUPABASE_KEY }}";
-    const client=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-    const USER_ID="{{ session['user_id'] }}";
-    const PARTNER_ID="{{ session['partner_id'] }}";
+  moodButtons.forEach(btn => btn.onclick = () => setMood(btn.dataset.mood));
 
-    const moodButtons=document.querySelectorAll('.mood-btn');
-    const yourMoodEl=document.getElementById('mood-status');
-    const partnerMoodEl=document.getElementById('partner-mood');
+  // Realtime updates for moods
+  client.channel('moods_channel')
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'moods'}, () => {
+      updateMoods();
+    })
+    .subscribe();
 
-    async function updateMoods(){
-      const {data,error}=await client.from('moods').select('*').in('user_id',[USER_ID,PARTNER_ID]).order('created_at',{ascending:false});
-      if(error) return console.error(error);
-      const latest={};
-      data.forEach(r=>{if(!latest[r.user_id]) latest[r.user_id]=r.mood;});
-      yourMoodEl.textContent=`Current mood: ${latest[USER_ID]||'—'}`;
-      partnerMoodEl.textContent=`Partner's mood: ${latest[PARTNER_ID]||'—'}`;
-      moodButtons.forEach(btn=>{btn.style.border=(btn.dataset.mood===latest[USER_ID])?'2px solid #8ef08e':'1px solid rgba(255,255,255,0.08)';});
-    }
+  // Initial load
+  updateMoods();
 
-    async function setMood(mood){
-      const {error}=await client.from('moods').insert([{user_id:USER_ID,mood}]);
-      if(error) console.error(error);
-    }
+});
+</script>
 
-    moodButtons.forEach(btn=>btn.onclick=()=>setMood(btn.dataset.mood));
 
-    client.channel('moods_channel')
-      .on('postgres_changes',{event:'INSERT',schema:'public',table:'moods'},()=>{updateMoods();})
-      .subscribe();
-
-    updateMoods();
-
-  });
-  </script>
-</body>
-</html>
+  </body>
+  </html>

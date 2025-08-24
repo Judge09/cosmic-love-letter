@@ -5,42 +5,588 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Special Days — Cosmic Love</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/stars.js') }}"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* Top header and centered wide grid; month/year above controls */
+    .calendar-card { grid-column:1/-1; width:100%; max-width:1200px; margin:0 auto; padding:18px; box-sizing:border-box; }
+
+    .calendar-top {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+      margin-bottom:12px;
+    }
+
+    .month-year {
+      font-weight:900;
+      font-size:40px;
+      color:#ffd8ff;
+      font-family: 'Great Vibes', cursive;
+      letter-spacing:0.6px;
+      text-align:center;
+    }
+
+    .month-sub { text-align:center; color:#d3b9ff; font-size:13px; }
+
+    .calendar-controls {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-top:6px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+    .btn { background:#c084fc; color:#fff; border:none; padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:800; }
+    .btn-ghost { background: rgba(255,255,255,0.02); color:#ffd8ff; border:1px solid rgba(255,255,255,0.06); }
+    .btn-today { background:#8b5cf6; }
+    .btn:disabled { opacity:0.6; cursor:not-allowed; }
+
+    /* calendar grid (classic weekday-aligned) */
+    .calendar-nav { display:flex; justify-content:space-between; margin-bottom:10px; align-items:center; }
+    .calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+    .calendar-day { padding:12px; background:rgba(255,255,255,0.05); border-radius:6px; text-align:center; cursor:pointer; transition:0.2s; min-height:72px; position:relative; overflow:visible; }
+    .calendar-day.today { border:2px solid #c084fc; }
+    .calendar-day.has-event { /* subtle colored background */ background: linear-gradient(180deg, rgba(192,132,252,0.06), rgba(255,214,255,0.03)); }
+    .calendar-day:hover { background:rgba(255,255,255,0.12); }
+
+    /* emoji badge shown in the corner (one per day) */
+    .event-emoji {
+      position:absolute;
+      right:8px;
+      top:8px;
+      font-size:18px;
+      filter: drop-shadow(0 6px 14px rgba(0,0,0,0.35));
+    }
+
+    /* small legend (optional) */
+    .calendar-legend { display:flex; gap:8px; justify-content:center; margin-top:8px; color:#d3b9ff; font-size:13px; }
+
+    /* ========== MODAL IMPROVED STYLES ========== */
+    /* hidden by default */
+    #event-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(rgba(4,3,8,0.6), rgba(4,3,8,0.75));
+      z-index: 220;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    /* visible when .show is added */
+    #event-modal.show { display: flex; }
+
+    .modal-card {
+      width: min(880px, 96%);
+      max-width: 880px;
+      background: linear-gradient(180deg, rgba(7,6,12,0.98), rgba(10,3,22,0.99));
+      border-radius: 14px;
+      padding: 18px;
+      color: #efe6ff;
+      box-shadow: 0 30px 80px rgba(6,4,20,0.6);
+      transform: translateY(10px) scale(.995);
+      opacity: 0;
+      transition: transform .14s ease, opacity .14s ease;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 16px;
+      pointer-events: auto;
+    }
+    #event-modal.show .modal-card { transform: translateY(0) scale(1); opacity: 1; }
+
+    .modal-header {
+      grid-column: 1 / -1;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+    .modal-title { font-size:18px; font-weight:900; color:#ffd8ff; margin:0; }
+    .modal-sub { color:#d3b9ff; font-size:13px; margin-top:4px; }
+
+    .close {
+      background:transparent; border:none; color:#fff; font-size:20px; cursor:pointer; padding:6px 8px; border-radius:8px;
+    }
+    .close:hover { background: rgba(255,255,255,0.02); }
+
+    .modal-events {
+      padding:8px;
+      border-radius:10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+      max-height: 56vh;
+      overflow:auto;
+    }
+    .event-row {
+      display:flex; gap:12px; align-items:flex-start; justify-content:space-between;
+      padding:10px; border-radius:10px; margin-bottom:10px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.02);
+    }
+    .event-left { display:flex; gap:10px; align-items:flex-start; min-width:0; }
+    .event-emoji-pill { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; background: linear-gradient(90deg,#c084fc,#ffd6f7); color:#120014; flex-shrink:0; }
+    .event-meta { min-width:0; }
+    .event-meta strong { display:block; font-size:15px; color:#fff; }
+    .event-meta .meta-line { color:#d3b9ff; font-size:13px; margin-top:6px; white-space:pre-line; overflow:hidden; text-overflow:ellipsis; }
+
+    .event-actions { display:flex; gap:8px; align-items:center; }
+    .btn-edit { background:#ffd6f7; color:#111; border:none; padding:8px 10px; border-radius:8px; cursor:pointer; font-weight:800; }
+    .btn-del { background:#ff7b7b; color:#111; border:none; padding:8px 10px; border-radius:8px; cursor:pointer; font-weight:800; }
+
+    .modal-form {
+      padding:12px;
+      border-radius:10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+      height: 100%;
+      box-sizing: border-box;
+      display:flex; flex-direction:column; gap:8px;
+    }
+    .modal-form label { font-size:12px; color:#d3b9ff; }
+    .modal-form input[type="text"], .modal-form input[type="time"], .modal-form select, .modal-form textarea {
+      padding:10px; border-radius:8px; border:none; background: rgba(255,255,255,0.04); color:#fff; width:100%; box-sizing:border-box;
+    }
+    .modal-form .row { display:flex; gap:8px; }
+    .modal-form .row .half { flex:1; }
+
+    .modal-form .actions { margin-top:auto; display:flex; gap:8px; }
+    .modal-save { background: linear-gradient(90deg,#8b5cf6,#c084fc); border:none; color:#fff; padding:10px 12px; border-radius:10px; font-weight:900; cursor:pointer; flex:1; }
+    .modal-cancel { background: transparent; border:1px solid rgba(255,255,255,0.06); color:#ffd8ff; padding:10px 12px; border-radius:10px; cursor:pointer; flex:1; }
+
+    .modal-msg { font-size:13px; color:#d3b9ff; min-height:20px; margin-top:8px; }
+
+    @media (max-width:980px){
+      .modal-card { grid-template-columns: 1fr; max-width: 92vw; }
+      .modal-events { max-height: 44vh; }
+    }
+    @media (max-width:480px){
+      .event-emoji-pill { width:36px; height:36px; font-size:16px; }
+    }
+    @media (max-width:880px){
+      .calendar-grid { gap:6px; }
+      .calendar-day { min-height:64px; padding:10px; }
+      .month-year { font-size:28px; }
+    }
+  </style>
 </head>
 <body>
   <div class="stars-bg"></div>
+
   <div class="container">
+    <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="brand"><h2>From Me to You</h2><div class="greeting">Hey beautiful 💌</div></div>
+      <div class="brand">
+        <h2>From Me to You</h2>
+        <div class="greeting">Hey {{ session.get('username', 'beautiful') }} 💌</div>
+      </div>
+
       <nav class="nav">
-        <a href="{{ url_for('index') }}">Home</a>
-        <a href="{{ url_for('love_notes') }}">Love Notes</a>
-        <a href="{{ url_for('memories') }}">Memories</a>
-        <a href="{{ url_for('special_days') }}" class="active">Special Days</a>
-        <a href="{{ url_for('settings') }}">Settings</a>
+        <a href="{{ url_for('index') }}">🏠 Home</a>
+        <a href="{{ url_for('love_notes') }}">💌 Love Notes</a>
+        <a href="{{ url_for('memories') }}">📸 Memories</a>
+        <a href="{{ url_for('special_days') }}" class="active">🎉 Special Days</a>
       </nav>
-      <div class="foot"><a href="{{ url_for('logout') }}" style="color:#ffd8a6;">Logout</a></div>
+
+      <div class="foot">
+        <a href="{{ url_for('logout') }}" style="color:#ffd8a6; text-decoration:none;">🚪 Logout</a>
+      </div>
     </aside>
 
+    <!-- Main -->
     <main class="main">
-      <header class="header"><h1>Special Days 📅</h1><p class="sub">Countdowns for meetups, anniversaries, monthsaries</p></header>
+      <header class="header" style="text-align:left;">
+        <h1>Special Days 📅</h1>
+        <p class="sub">Click a day to view events, quick add/edit/delete, and see PH ↔ LA times</p>
+      </header>
 
-      <section class="grid" style="max-width:900px; margin:0 auto;">
-        <div class="card">
-          <h3>Next meetup</h3>
-          <p style="color:#d6bfff;">No upcoming meetup set. Add one in Settings.</p>
+      <!-- DATES UI (right of sidebar, header above) - SIMPLE / FIRST VERSION -->
+      <section style="max-width:900px; margin:0 auto;">
+        <!-- Month Navigation (classic) -->
+        <div class="calendar-nav">
+          <button id="prev-month" class="btn btn-ghost">◀</button>
+          <h3 id="month-year" class="month-year"></h3>
+          <button id="next-month" class="btn btn-ghost">▶</button>
         </div>
 
-        <div class="card">
-          <h3>Anniversary</h3>
-          <p style="color:#d6bfff;">Default anniversary is set in the backend. Change in Settings.</p>
+        <!-- Weekday headers -->
+        <div class="calendar-grid" id="weekday-header">
+          <div class="weekday-header">Sun</div>
+          <div class="weekday-header">Mon</div>
+          <div class="weekday-header">Tue</div>
+          <div class="weekday-header">Wed</div>
+          <div class="weekday-header">Thu</div>
+          <div class="weekday-header">Fri</div>
+          <div class="weekday-header">Sat</div>
         </div>
 
-        <div class="card" style="grid-column:1/-1;">
-          <h3>All special days</h3>
-          <p style="color:#d6bfff;">(Placeholder) I'll store these in Supabase when you want persistence.</p>
+        <!-- Calendar Grid -->
+        <div class="calendar-grid" id="calendar-grid"></div>
+
+        <!-- small legend -->
+        <div class="calendar-legend">
+          <div>🎂 Birthday</div><div>💍 Anniversary</div><div>✅ RSVP</div><div>🎉 Other</div>
         </div>
+
+        <!-- Event Modal (enhanced UI) -->
+        <div id="event-modal" aria-hidden="true">
+          <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-date">
+            <div class="modal-header">
+              <div>
+                <div id="modal-date" class="modal-title">Date</div>
+                <div id="modal-sub" class="modal-sub">Events & details</div>
+              </div>
+              <div>
+                <button class="close" id="close-modal" title="Close">✖</button>
+              </div>
+            </div>
+
+            <!-- events list (left) -->
+            <div class="modal-events" id="modal-events" aria-live="polite">Loading…</div>
+
+            <!-- form (right) -->
+            <div class="modal-form" aria-hidden="false">
+              <label for="event-title">Title</label>
+              <input type="text" id="event-title" placeholder="Event title">
+
+              <div class="row">
+                <div class="half">
+                  <label for="event-time-ph">PH Time</label>
+                  <input id="event-time-ph" type="time" />
+                </div>
+                <div class="half">
+                  <label for="event-time-ca">LA Time (auto)</label>
+                  <input id="event-time-ca" type="time" readonly />
+                </div>
+              </div>
+
+              <label for="event-venue">Venue</label>
+              <input type="text" id="event-venue" placeholder="Venue">
+
+              <label for="event-type">Type</label>
+              <select id="event-type">
+                <option value="other">🎉 Other</option>
+                <option value="birthday">🎂 Birthday</option>
+                <option value="anniversary">💍 Anniversary</option>
+                <option value="rsvp">✅ RSVP</option>
+              </select>
+
+              <label for="event-rsvp">RSVP</label>
+              <select id="event-rsvp">
+                <option value="none">RSVP: none</option>
+                <option value="yes">Going</option>
+                <option value="maybe">Maybe</option>
+                <option value="no">Not going</option>
+              </select>
+
+              <div class="actions">
+                <button class="modal-save btn" id="save-event">Save</button>
+                <button class="modal-cancel btn-ghost" id="cancel-edit">Cancel</button>
+              </div>
+
+              <div class="modal-msg" id="modal-msg"></div>
+            </div>
+          </div>
+        </div>
+
       </section>
     </main>
   </div>
+
+<script>
+(() => {
+  const SUPABASE_URL = "{{ SUPABASE_URL }}";
+  const SUPABASE_KEY = "{{ SUPABASE_KEY }}";
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // DOM refs
+  const monthYearEl = document.getElementById('month-year');
+  const daysGrid = document.getElementById('calendar-grid');
+  const prevMonthBtn = document.getElementById('prev-month');
+  const nextMonthBtn = document.getElementById('next-month');
+
+  const modal = document.getElementById('event-modal');
+  const modalCard = modal.querySelector('.modal-card');
+  const modalDateEl = document.getElementById('modal-date');
+  const modalSubEl = document.getElementById('modal-sub');
+  const modalEventsEl = document.getElementById('modal-events');
+  const closeBtn = document.getElementById('close-modal');
+  const titleInput = document.getElementById('event-title');
+  const timePhInput = document.getElementById('event-time-ph');
+  const timeCaInput = document.getElementById('event-time-ca');
+  const venueInput = document.getElementById('event-venue');
+  const typeInput = document.getElementById('event-type');
+  const rsvpInput = document.getElementById('event-rsvp');
+  const saveBtn = document.getElementById('save-event');
+  const cancelBtn = document.getElementById('cancel-edit');
+  const modalMsg = document.getElementById('modal-msg');
+
+  // state
+  let currentDate = new Date();
+  let eventsMap = {}; // keyed by 'YYYY-MM-DD' -> [events]
+  let selectedDate = null;
+  let editingId = null;
+
+  const pad2 = n => String(n).padStart(2,'0');
+  const isoDate = (y,m,d) => `${y}-${pad2(m)}-${pad2(d)}`;
+  const todayKey = (() => { const t = new Date(); return isoDate(t.getFullYear(), t.getMonth()+1, t.getDate()); })();
+
+  const typeEmoji = { birthday:'🎂', anniversary:'💍', rsvp:'✅', other:'🎉' };
+
+  // Load events for the month
+  async function loadEvents(year,monthIndex){
+    const start = isoDate(year, monthIndex+1, 1);
+    const lastDay = new Date(year, monthIndex+1, 0).getDate();
+    const end = isoDate(year, monthIndex+1, lastDay);
+
+    const { data, error } = await client.from('special_days')
+      .select('*')
+      .gte('event_date', start)
+      .lte('event_date', end)
+      .order('event_date', { ascending:true })
+      .order('time_ph', { ascending:true });
+
+    if(error){ console.error("Load events error:", error); eventsMap = {}; return; }
+    eventsMap = {};
+    data.forEach(ev => {
+      const k = ev.event_date;
+      if(!eventsMap[k]) eventsMap[k] = [];
+      eventsMap[k].push(ev);
+    });
+  }
+
+  function showMonthYear(date){
+    monthYearEl.textContent = date.toLocaleString('default',{month:'long', year:'numeric'});
+  }
+
+  // render classic weekday-aligned grid
+  function renderCalendar(){
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    showMonthYear(currentDate);
+    daysGrid.innerHTML = "";
+
+    const firstDay = new Date(year,month,1).getDay();
+    const lastDate = new Date(year,month+1,0).getDate();
+
+    // insert leading empty cells to align weekdays
+    for(let i=0;i<firstDay;i++){
+      const empty = document.createElement('div');
+      empty.className = 'calendar-day';
+      empty.style.background='transparent';
+      empty.style.cursor='default';
+      daysGrid.appendChild(empty);
+    }
+
+    for(let day=1; day<=lastDate; day++){
+      const d = new Date(year, month, day);
+      const dateKey = isoDate(year, month+1, day);
+      const cell = document.createElement('div');
+      cell.className = 'calendar-day';
+      cell.dataset.date = dateKey;
+
+      // day number (keep it minimal)
+      const num = document.createElement('div');
+      num.textContent = day;
+      num.style.fontWeight='700';
+      num.style.color='#ffd6f7';
+      num.style.marginBottom = '6px';
+      cell.appendChild(num);
+
+      // today
+      if(dateKey === todayKey) cell.classList.add('today');
+
+      // if events, show emoji badge of first event type
+      const evs = eventsMap[dateKey] || [];
+      if(evs.length > 0){
+        cell.classList.add('has-event');
+        const firstType = evs[0].event_type || (evs[0].title && evs[0].title.toLowerCase().includes('birthday')? 'birthday':'other');
+        const emoji = typeEmoji[firstType] || '🎉';
+        const badge = document.createElement('div');
+        badge.className = 'event-emoji';
+        badge.textContent = emoji;
+        cell.appendChild(badge);
+      }
+
+      cell.onclick = ()=> openModal(dateKey);
+      daysGrid.appendChild(cell);
+    }
+  }
+
+  // open modal and list all events for that date
+  async function openModal(dateKey){
+    selectedDate = dateKey;
+    editingId = null;
+    modalMsg.textContent = '';
+    modalDateEl.textContent = new Date(dateKey).toLocaleDateString(undefined, {month:'long', day:'numeric', year:'numeric'});
+    modalSubEl.textContent = `Events on ${new Date(dateKey).toLocaleDateString(undefined, {month:'long', year:'numeric'})}`;
+    titleInput.value=''; timePhInput.value=''; timeCaInput.value=''; venueInput.value=''; typeInput.value='other'; rsvpInput.value='none';
+    modalEventsEl.innerHTML = 'Loading…';
+    modal.setAttribute('aria-hidden','false');
+    modal.classList.add('show');
+
+    // allow animation; focus PH time after open
+    setTimeout(()=> { timePhInput.focus(); }, 120);
+
+    const { data, error } = await client.from('special_days').select('*').eq('event_date', dateKey).order('time_ph', {ascending:true});
+    if(error){ modalEventsEl.textContent = 'Error loading events'; console.error(error); return; }
+    if(!data || data.length === 0){
+      modalEventsEl.innerHTML = '<div class="small" style="color:#d6bfff;">No events yet</div>';
+      return;
+    }
+    // render list
+    modalEventsEl.innerHTML = '';
+    data.forEach(ev=>{
+      const row = document.createElement('div');
+      row.className = 'event-row';
+
+      const left = document.createElement('div');
+      left.className = 'event-left';
+
+      const emojiPill = document.createElement('div');
+      emojiPill.className = 'event-emoji-pill';
+      emojiPill.textContent = typeEmoji[ev.event_type] || '🎉';
+
+      const meta = document.createElement('div');
+      meta.className = 'event-meta';
+      const title = document.createElement('strong');
+      title.textContent = ev.title || '';
+      const lines = document.createElement('div');
+      lines.className = 'meta-line';
+      lines.innerHTML = `${ev.time_ph || ev.time || '--:--'} (PH) — ${ev.time_ca || '--:--'} (LA)<br>${ev.venue || ''}<br>RSVP: ${ev.rsvp || 'none'}`;
+
+      meta.appendChild(title);
+      meta.appendChild(lines);
+
+      left.appendChild(emojiPill);
+      left.appendChild(meta);
+
+      const actions = document.createElement('div');
+      actions.className = 'event-actions';
+      const editBtn = document.createElement('button');
+      editBtn.className='btn-edit';
+      editBtn.textContent='Edit';
+      editBtn.onclick = async () => {
+        // load into form for editing
+        editingId = ev.id;
+        titleInput.value = ev.title || '';
+        timePhInput.value = ev.time_ph || ev.time || '';
+        timeCaInput.value = ev.time_ca || '';
+        venueInput.value = ev.venue || '';
+        typeInput.value = ev.event_type || 'other';
+        rsvpInput.value = ev.rsvp || 'none';
+        modalMsg.textContent = 'Editing — save to update';
+        if(timePhInput.value) convertPHtoLA(timePhInput.value, selectedDate);
+      };
+      const delBtn = document.createElement('button');
+      delBtn.className='btn-del';
+      delBtn.textContent='Del';
+      delBtn.onclick = async () => {
+        if(!confirm('Delete this event?')) return;
+        const { error } = await client.from('special_days').delete().eq('id', ev.id);
+        if(error){ modalMsg.textContent='Delete failed'; modalMsg.style.color='#ffb4b4'; console.error(error); return; }
+        modalMsg.textContent='Deleted';
+        await loadAndRerender();
+        openModal(dateKey); // refresh modal list
+      };
+      actions.appendChild(editBtn);
+      actions.appendChild(delBtn);
+
+      row.appendChild(left);
+      row.appendChild(actions);
+      modalEventsEl.appendChild(row);
+    });
+  }
+
+  function closeModal(){
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden','true');
+    // clear form & messages shortly after hide
+    setTimeout(()=> {
+      modalEventsEl.innerHTML = '';
+      modalMsg.textContent = '';
+    }, 220);
+  }
+
+  closeBtn.onclick = closeModal;
+  cancelBtn.onclick = () => {
+    editingId = null;
+    titleInput.value=''; timePhInput.value=''; timeCaInput.value=''; venueInput.value=''; typeInput.value='other'; rsvpInput.value='none';
+    modalMsg.textContent = '';
+  };
+
+  // close when clicking background (but not when clicking inside the card)
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+  // prevent clicks inside the card from closing
+  modalCard.addEventListener('click', (e) => e.stopPropagation());
+
+  // time conversion helper (PH -> LA)
+  function convertPHtoLA(phTime, dateKey){
+    if(!phTime) { timeCaInput.value = ''; return; }
+    try {
+      // dateKey is YYYY-MM-DD
+      const dtPH = new Date(`${dateKey}T${phTime}:00`);
+      const la = dtPH.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit', timeZone:'America/Los_Angeles' });
+      timeCaInput.value = la;
+    } catch(e){ console.warn('convertPHtoLA', e); }
+  }
+
+  timePhInput.addEventListener('input', ()=>convertPHtoLA(timePhInput.value, selectedDate));
+
+  // save (insert or update)
+  saveBtn.addEventListener('click', async () => {
+    modalMsg.style.color = '#d3b9ff';
+    modalMsg.textContent = '';
+    const title = titleInput.value.trim();
+    const time_ph = timePhInput.value;
+    const time_ca = timeCaInput.value;
+    const venue = venueInput.value.trim();
+    const event_type = typeInput.value;
+    const rsvp = rsvpInput.value;
+
+    if(!title || !time_ph || !venue){
+      modalMsg.style.color = '#ffb4b4';
+      modalMsg.textContent = 'Fill title, PH time, and venue.';
+      return;
+    }
+
+    if(editingId){
+      const { error } = await client.from('special_days').update({ title, time_ph, time_ca, venue, event_type, rsvp }).eq('id', editingId);
+      if(error){ modalMsg.style.color = '#ffb4b4'; modalMsg.textContent = 'Update failed'; console.error(error); return; }
+      modalMsg.style.color = '#8ef08e';
+      modalMsg.textContent = 'Updated';
+      editingId = null;
+    } else {
+      const { error } = await client.from('special_days').insert([{ event_date: selectedDate, title, time_ph, time_ca, venue, event_type, rsvp }]);
+      if(error){ modalMsg.style.color = '#ffb4b4'; modalMsg.textContent = 'Save failed'; console.error(error); return; }
+      modalMsg.style.color = '#8ef08e';
+      modalMsg.textContent = 'Saved';
+    }
+
+    await loadAndRerender();
+    openModal(selectedDate); // refresh modal list
+  });
+
+  async function loadAndRerender(){
+    await loadEvents(currentDate.getFullYear(), currentDate.getMonth());
+    renderCalendar();
+  }
+
+  // navigation
+  prevMonthBtn.addEventListener('click', async () => { currentDate.setMonth(currentDate.getMonth()-1); await loadAndRerender(); });
+  nextMonthBtn.addEventListener('click', async () => { currentDate.setMonth(currentDate.getMonth()+1); await loadAndRerender(); });
+
+  // initial load
+  (async function init(){
+    await loadEvents(currentDate.getFullYear(), currentDate.getMonth());
+    renderCalendar();
+  })();
+
+  // accessibility: close on escape
+  window.addEventListener('keydown', (e)=> {
+    if(e.key === 'Escape' && modal.classList.contains('show')) closeModal();
+  });
+
+})();
+</script>
 </body>
 </html>
